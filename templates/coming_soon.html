@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>REDCON Platform — Coming soon</title>
+    <meta name="description" content="REDCON Platform dashboard is coming soon." />
+    <link rel="icon" type="image/png" href="/static/logo.png" />
+    <style>
+      :root {
+        --bg: #0a0a0f;
+        --card: rgba(255, 255, 255, 0.06);
+        --border: rgba(255, 255, 255, 0.12);
+        --text: rgba(255, 255, 255, 0.92);
+        --muted: rgba(255, 255, 255, 0.65);
+        --red: #c9353f;
+        --red2: #e84855;
+      }
+      html, body { height: 100%; }
+      body {
+        margin: 0;
+        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+        background:
+          radial-gradient(1200px 520px at 20% 10%, rgba(232,72,85,0.40), transparent 60%),
+          radial-gradient(900px 520px at 80% 20%, rgba(59,130,246,0.20), transparent 55%),
+          linear-gradient(135deg, #0a0a0f, #151525 60%, #0a0a0f);
+        color: var(--text);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 28px;
+      }
+      .wrap { width: 100%; max-width: 720px; }
+      .brand { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
+      .brand img { height: 38px; width: auto; }
+      .brand .name { font-weight: 800; letter-spacing: 0.02em; font-size: 20px; }
+      .card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 22px;
+        padding: 26px;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 22px 70px rgba(0,0,0,0.55);
+      }
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 12px;
+        border-radius: 999px;
+        border: 1px solid rgba(201,53,63,0.35);
+        background: rgba(201,53,63,0.12);
+        color: rgba(255,255,255,0.92);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+      h1 { margin: 14px 0 10px; font-size: 34px; line-height: 1.2; }
+      p { margin: 0 0 14px; color: var(--muted); line-height: 1.65; }
+      .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        padding: 10px 14px;
+        border-radius: 14px;
+        border: 1px solid var(--border);
+        background: rgba(255,255,255,0.06);
+        color: var(--text);
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 14px;
+        transition: transform .15s ease, background .15s ease, border-color .15s ease;
+      }
+      .btn:hover { transform: translateY(-1px); background: rgba(255,255,255,0.09); border-color: rgba(255,255,255,0.18); }
+      .btn.primary { border-color: rgba(232,72,85,0.45); background: rgba(232,72,85,0.14); }
+      .btn.primary:hover { background: rgba(232,72,85,0.18); }
+      .foot { margin-top: 16px; font-size: 12px; color: rgba(255,255,255,0.55); }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="brand">
+        <img src="/static/logo.png" alt="REDCON" />
+        <div class="name">REDCON OFFENCE</div>
+      </div>
+      <div class="card">
+        <div class="pill">Coming soon</div>
+        <h1>Dashboard is under development</h1>
+        <p>
+          Thanks for your interest. The REDCON dashboard experience is coming soon.
+          In the meantime, you can access the platform login or return to the homepage.
+        </p>
+        <div class="actions">
+          <a class="btn primary" href="https://platform.redconoffence.com/app/portal">Go to Platform Login →</a>
+          <a class="btn" href="/">Back to Home</a>
+        </div>
+        <div class="foot">If you need access today, contact support.</div>
+      </div>
+    </div>
+  </body>
+</html>
+

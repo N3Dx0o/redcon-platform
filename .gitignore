@@ -1,0 +1,61 @@
+# === Python ===
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+.venv/
+env/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# === Node / Next.js ===
+node_modules/
+.next/
+out/
+.npm/
+*.tsbuildinfo
+
+# === Secrets / env ===
+.env
+.env.*
+!.env.example
+
+# === Databases / runtime data ===
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite3
+uploads/
+temp_scans/
+screenshots/
+
+# === Logs ===
+*.log
+logs/
+flask.log
+
+# === Editor / OS ===
+.DS_Store
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# === Local backups (never commit) ===
+*.bak
+*.bak.*
+*.backup
+*.backup.*
+*.save
+*.orig
+*.original*
+._*
+
+# Nested scanner copy (lives in separate redcon-scanner repo)
+/scanner/

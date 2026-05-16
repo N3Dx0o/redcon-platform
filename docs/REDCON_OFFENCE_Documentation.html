@@ -1,0 +1,1011 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        @page {
+            size: A4;
+            margin: 2cm;
+            @bottom-center {
+                content: "REDCON OFFENCE - Confidential";
+                font-size: 10px;
+                color: #666;
+            }
+            @bottom-right {
+                content: "Page " counter(page) " of " counter(pages);
+                font-size: 10px;
+                color: #666;
+            }
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #1a1a2e;
+            font-size: 11pt;
+        }
+        
+        .cover {
+            page-break-after: always;
+            text-align: center;
+            padding-top: 200px;
+        }
+        
+        .cover h1 {
+            font-size: 48pt;
+            color: #c9353f;
+            margin: 0;
+            letter-spacing: 4px;
+        }
+        
+        .cover .tagline {
+            font-size: 14pt;
+            color: #666;
+            margin-top: 10px;
+            letter-spacing: 2px;
+        }
+        
+        .cover .doc-title {
+            font-size: 24pt;
+            margin-top: 100px;
+            color: #1a1a2e;
+        }
+        
+        .cover .date {
+            margin-top: 150px;
+            color: #666;
+        }
+        
+        h1 {
+            color: #c9353f;
+            border-bottom: 3px solid #c9353f;
+            padding-bottom: 10px;
+            page-break-after: avoid;
+        }
+        
+        h2 {
+            color: #1a1a2e;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+            margin-top: 30px;
+            page-break-after: avoid;
+        }
+        
+        h3 {
+            color: #c9353f;
+            margin-top: 20px;
+            page-break-after: avoid;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            font-size: 10pt;
+        }
+        
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        
+        th {
+            background: #c9353f;
+            color: white;
+        }
+        
+        tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+        
+        .highlight {
+            background: #fff3cd;
+            padding: 15px;
+            border-left: 4px solid #c9353f;
+            margin: 15px 0;
+        }
+        
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Consolas', monospace;
+            font-size: 10pt;
+        }
+        
+        pre {
+            background: #1a1a2e;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-size: 9pt;
+            page-break-inside: avoid;
+        }
+        
+        .toc {
+            page-break-after: always;
+        }
+        
+        .toc h2 {
+            color: #c9353f;
+        }
+        
+        .toc ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .toc li {
+            padding: 8px 0;
+            border-bottom: 1px dotted #ddd;
+        }
+        
+        .section {
+            page-break-before: always;
+        }
+        
+        .flowchart {
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: monospace;
+            white-space: pre;
+            font-size: 9pt;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 9pt;
+            font-weight: bold;
+        }
+        
+        .badge-critical { background: #dc3545; color: white; }
+        .badge-high { background: #fd7e14; color: white; }
+        .badge-medium { background: #ffc107; color: black; }
+        .badge-low { background: #28a745; color: white; }
+    </style>
+</head>
+<body>
+
+<!-- COVER PAGE -->
+<div class="cover">
+    <h1>REDCON OFFENCE</h1>
+    <div class="tagline">UNMATCHED PERCEPTION. UNBROKEN WILL.</div>
+    <div class="doc-title">Platform Documentation</div>
+    <div class="date">
+        <strong>Version 1.0</strong><br>
+        January 2026
+    </div>
+</div>
+
+<!-- TABLE OF CONTENTS -->
+<div class="toc">
+    <h2>Table of Contents</h2>
+    <ul>
+        <li><strong>1. Executive Summary</strong></li>
+        <li><strong>2. Business Model</strong></li>
+        <li><strong>3. User Roles & Access</strong></li>
+        <li><strong>4. Platform Workflow</strong></li>
+        <li><strong>5. Client Journey</strong></li>
+        <li><strong>6. Pentester Journey</strong></li>
+        <li><strong>7. Finding Management</strong></li>
+        <li><strong>8. Payments & Billing</strong></li>
+        <li><strong>9. Security Architecture</strong></li>
+        <li><strong>10. Technical Reference</strong></li>
+        <li><strong>11. API Endpoints</strong></li>
+        <li><strong>12. Support & Contact</strong></li>
+    </ul>
+</div>
+
+<!-- SECTION 1: EXECUTIVE SUMMARY -->
+<div class="section">
+    <h1>1. Executive Summary</h1>
+    
+    <p><strong>REDCON OFFENCE</strong> is a Penetration Testing as a Service (PTaaS) platform that connects businesses with vetted security researchers to identify vulnerabilities in their applications, networks, and infrastructure.</p>
+    
+    <div class="highlight">
+        <strong>Key Value Propositions:</strong>
+        <ul>
+            <li>Real-time vulnerability findings (not waiting weeks for reports)</li>
+            <li>Vetted, certified security researchers</li>
+            <li>Flexible engagement models (one-time or continuous)</li>
+            <li>Interactive dashboard with live updates</li>
+            <li>Compliance-ready reporting (SOC 2, PCI DSS, HIPAA)</li>
+        </ul>
+    </div>
+    
+    <h2>Platform at a Glance</h2>
+    <table>
+        <tr>
+            <th>Metric</th>
+            <th>Description</th>
+        </tr>
+        <tr>
+            <td>Engagement Types</td>
+            <td>Web App, Mobile, API, Network, Cloud, Smart Contracts</td>
+        </tr>
+        <tr>
+            <td>Typical Duration</td>
+            <td>1-4 weeks per engagement</td>
+        </tr>
+        <tr>
+            <td>Pricing Range</td>
+            <td>$5,000 - $100,000 per engagement</td>
+        </tr>
+        <tr>
+            <td>Platform Fee</td>
+            <td>20% of engagement value</td>
+        </tr>
+    </table>
+</div>
+
+<!-- SECTION 2: BUSINESS MODEL -->
+<div class="section">
+    <h1>2. Business Model</h1>
+    
+    <h2>Revenue Streams</h2>
+    <table>
+        <tr>
+            <th>Stream</th>
+            <th>Description</th>
+            <th>Typical Pricing</th>
+        </tr>
+        <tr>
+            <td>PTaaS Subscriptions</td>
+            <td>Monthly/annual pentest programs</td>
+            <td>$2,000 - $50,000/month</td>
+        </tr>
+        <tr>
+            <td>One-time Pentests</td>
+            <td>Single engagement assessments</td>
+            <td>$5,000 - $100,000</td>
+        </tr>
+        <tr>
+            <td>Bug Bounty Management</td>
+            <td>Managed bug bounty programs</td>
+            <td>20% of payouts + platform fee</td>
+        </tr>
+        <tr>
+            <td>Compliance Packages</td>
+            <td>SOC2, PCI-DSS, HIPAA assessments</td>
+            <td>$15,000 - $75,000</td>
+        </tr>
+        <tr>
+            <td>Retesting Services</td>
+            <td>Verify remediation of findings</td>
+            <td>$500 - $5,000 per retest</td>
+        </tr>
+    </table>
+    
+    <h2>Commission Structure</h2>
+    <div class="flowchart">
+┌─────────────────────────────────────────────────────────────┐
+│                    CLIENT PAYMENT                           │
+│                        $10,000                              │
+├─────────────────────────────────────────────────────────────┤
+│  Platform Fee (20%)          │  Pentester Payout (80%)      │
+│       $2,000                 │       $8,000                 │
+└─────────────────────────────────────────────────────────────┘
+    </div>
+</div>
+
+<!-- SECTION 3: USER ROLES -->
+<div class="section">
+    <h1>3. User Roles & Access</h1>
+    
+    <h2>Role Definitions</h2>
+    <table>
+        <tr>
+            <th>Role</th>
+            <th>Description</th>
+            <th>Dashboard</th>
+        </tr>
+        <tr>
+            <td><strong>Client</strong></td>
+            <td>Companies requesting penetration tests</td>
+            <td>/client/dashboard</td>
+        </tr>
+        <tr>
+            <td><strong>Pentester</strong></td>
+            <td>Vetted security researchers</td>
+            <td>/ptaas/pentests</td>
+        </tr>
+        <tr>
+            <td><strong>Admin</strong></td>
+            <td>Platform administrators</td>
+            <td>/admin/dashboard</td>
+        </tr>
+    </table>
+    
+    <h2>Access Control Matrix</h2>
+    <table>
+        <tr>
+            <th>Action</th>
+            <th>Client</th>
+            <th>Pentester</th>
+            <th>Admin</th>
+        </tr>
+        <tr>
+            <td>Request Pentest</td>
+            <td>✓</td>
+            <td>✗</td>
+            <td>✓</td>
+        </tr>
+        <tr>
+            <td>Submit Findings</td>
+            <td>✗</td>
+            <td>✓</td>
+            <td>✓</td>
+        </tr>
+        <tr>
+            <td>Review Findings</td>
+            <td>✓ (own)</td>
+            <td>✓ (assigned)</td>
+            <td>✓ (all)</td>
+        </tr>
+        <tr>
+            <td>Apply to Postings</td>
+            <td>✗</td>
+            <td>✓</td>
+            <td>✗</td>
+        </tr>
+        <tr>
+            <td>Process Payouts</td>
+            <td>✗</td>
+            <td>✗</td>
+            <td>✓</td>
+        </tr>
+        <tr>
+            <td>Manage Users</td>
+            <td>✗</td>
+            <td>✗</td>
+            <td>✓</td>
+        </tr>
+    </table>
+</div>
+
+<!-- SECTION 4: PLATFORM WORKFLOW -->
+<div class="section">
+    <h1>4. Platform Workflow</h1>
+    
+    <h2>End-to-End Pentest Lifecycle</h2>
+    <div class="flowchart">
+    REQUEST → SCOPE → ASSIGN → TEST → REPORT → RETEST → CLOSE
+       │        │        │        │        │         │        │
+       ▼        ▼        ▼        ▼        ▼         ▼        ▼
+    Client   Define   Match    Conduct   Deliver   Verify   Complete
+    submits  targets  testers  testing   findings   fixes   engagement
+    </div>
+    
+    <h2>Phase Details</h2>
+    
+    <h3>Phase 1: Request</h3>
+    <p>Client submits pentest request via dashboard, specifying:</p>
+    <ul>
+        <li>Test type (Web, Mobile, API, Network, Cloud)</li>
+        <li>Scope (in-scope and out-of-scope assets)</li>
+        <li>Timeline and budget</li>
+        <li>Compliance requirements</li>
+    </ul>
+    
+    <h3>Phase 2: Scope</h3>
+    <p>Admin reviews request and schedules scoping call to:</p>
+    <ul>
+        <li>Finalize scope and targets</li>
+        <li>Define Rules of Engagement</li>
+        <li>Collect credentials and access</li>
+        <li>Set communication protocols</li>
+    </ul>
+    
+    <h3>Phase 3: Assign</h3>
+    <p>Pentesters are matched based on:</p>
+    <ul>
+        <li>Skills and certifications</li>
+        <li>Rating and experience</li>
+        <li>Availability</li>
+        <li>Previous work with client</li>
+    </ul>
+    
+    <h3>Phase 4: Test</h3>
+    <p>Active testing period where pentesters:</p>
+    <ul>
+        <li>Conduct security assessment</li>
+        <li>Submit findings in real-time</li>
+        <li>Communicate with client via platform</li>
+    </ul>
+    
+    <h3>Phase 5: Report</h3>
+    <p>Final deliverables include:</p>
+    <ul>
+        <li>Executive summary (for leadership)</li>
+        <li>Technical report (for dev team)</li>
+        <li>Remediation roadmap</li>
+        <li>Compliance attestation (if applicable)</li>
+    </ul>
+    
+    <h3>Phase 6: Retest</h3>
+    <p>After client fixes issues:</p>
+    <ul>
+        <li>Client marks finding as "Fixed"</li>
+        <li>Pentester verifies remediation</li>
+        <li>Status updated to "Verified" or "Not Fixed"</li>
+    </ul>
+</div>
+
+<!-- SECTION 5: CLIENT JOURNEY -->
+<div class="section">
+    <h1>5. Client Journey</h1>
+    
+    <h2>Onboarding Process</h2>
+    <ol>
+        <li><strong>Sign Up:</strong> Create account at /portal?role=client</li>
+        <li><strong>Profile:</strong> Complete company information</li>
+        <li><strong>Billing:</strong> Add payment method</li>
+        <li><strong>Request:</strong> Submit first pentest request</li>
+        <li><strong>Kickoff:</strong> Attend scoping call</li>
+        <li><strong>Monitor:</strong> Review findings in real-time</li>
+    </ol>
+    
+    <h2>Dashboard Features</h2>
+    <table>
+        <tr>
+            <th>Feature</th>
+            <th>Description</th>
+        </tr>
+        <tr>
+            <td>Pentest Overview</td>
+            <td>View all active and past engagements</td>
+        </tr>
+        <tr>
+            <td>Findings Feed</td>
+            <td>Real-time vulnerability notifications</td>
+        </tr>
+        <tr>
+            <td>Triage Workflow</td>
+            <td>Accept, reject, or request more info on findings</td>
+        </tr>
+        <tr>
+            <td>Report Downloads</td>
+            <td>PDF, DOCX, HTML report formats</td>
+        </tr>
+        <tr>
+            <td>Retest Requests</td>
+            <td>Request verification after fixes</td>
+        </tr>
+    </table>
+    
+    <h2>Finding Response Options</h2>
+    <table>
+        <tr>
+            <th>Action</th>
+            <th>When to Use</th>
+        </tr>
+        <tr>
+            <td><strong>Accept</strong></td>
+            <td>Valid vulnerability, will be fixed</td>
+        </tr>
+        <tr>
+            <td><strong>Reject</strong></td>
+            <td>False positive or not applicable</td>
+        </tr>
+        <tr>
+            <td><strong>Request More Info</strong></td>
+            <td>Need clarification or additional evidence</td>
+        </tr>
+        <tr>
+            <td><strong>Mark as Fixed</strong></td>
+            <td>Remediation deployed, request retest</td>
+        </tr>
+    </table>
+</div>
+
+<!-- SECTION 6: PENTESTER JOURNEY -->
+<div class="section">
+    <h1>6. Pentester Journey</h1>
+    
+    <h2>Onboarding Requirements</h2>
+    <ul>
+        <li>Complete profile (bio, skills, certifications)</li>
+        <li>Link portfolio (HackerOne, Bugcrowd, GitHub)</li>
+        <li>Set up payment method</li>
+        <li>Pass verification process</li>
+        <li>Accept code of conduct</li>
+    </ul>
+    
+    <h2>Leveling System</h2>
+    <table>
+        <tr>
+            <th>Level</th>
+            <th>Requirements</th>
+            <th>Benefits</th>
+        </tr>
+        <tr>
+            <td>New</td>
+            <td>0-2 pentests</td>
+            <td>Access to basic postings</td>
+        </tr>
+        <tr>
+            <td>Verified</td>
+            <td>3-10 pentests</td>
+            <td>5% higher payouts, priority matching</td>
+        </tr>
+        <tr>
+            <td>Expert</td>
+            <td>11-25 pentests</td>
+            <td>10% higher payouts, featured profile</td>
+        </tr>
+        <tr>
+            <td>Elite</td>
+            <td>26+ pentests, 4.8+ rating</td>
+            <td>15% higher payouts, exclusive engagements</td>
+        </tr>
+    </table>
+    
+    <h2>Payment Schedule</h2>
+    <div class="flowchart">
+Day 1-14:  Pentest in progress
+Day 14:    Pentest completed
+Day 15-21: Client review period
+Day 21-28: Payout processing
+Day 28-35: Payment received
+    </div>
+</div>
+
+<!-- SECTION 7: FINDING MANAGEMENT -->
+<div class="section">
+    <h1>7. Finding Management</h1>
+    
+    <h2>Severity Levels</h2>
+    <table>
+        <tr>
+            <th>Severity</th>
+            <th>CVSS Score</th>
+            <th>Examples</th>
+            <th>Fix Timeline</th>
+        </tr>
+        <tr>
+            <td><span class="badge badge-critical">Critical</span></td>
+            <td>9.0 - 10.0</td>
+            <td>RCE, Auth bypass, SQLi with full access</td>
+            <td>24-48 hours</td>
+        </tr>
+        <tr>
+            <td><span class="badge badge-high">High</span></td>
+            <td>7.0 - 8.9</td>
+            <td>Stored XSS, IDOR with PII, Privilege escalation</td>
+            <td>1-2 weeks</td>
+        </tr>
+        <tr>
+            <td><span class="badge badge-medium">Medium</span></td>
+            <td>4.0 - 6.9</td>
+            <td>Reflected XSS, CSRF, Info disclosure</td>
+            <td>30 days</td>
+        </tr>
+        <tr>
+            <td><span class="badge badge-low">Low</span></td>
+            <td>0.1 - 3.9</td>
+            <td>Missing headers, Minor config issues</td>
+            <td>90 days</td>
+        </tr>
+    </table>
+    
+    <h2>Finding Workflow</h2>
+    <div class="flowchart">
+NEW → TRIAGED → ACCEPTED → FIXED → VERIFIED
+                    ↓
+                REJECTED
+    </div>
+    
+    <h2>Required Finding Information</h2>
+    <ul>
+        <li><strong>Title:</strong> Clear, specific vulnerability name</li>
+        <li><strong>Severity:</strong> CVSS score and vector</li>
+        <li><strong>Description:</strong> What is the vulnerability</li>
+        <li><strong>Steps to Reproduce:</strong> Detailed reproduction steps</li>
+        <li><strong>Proof of Concept:</strong> Screenshots, requests, video</li>
+        <li><strong>Impact:</strong> Business and technical impact</li>
+        <li><strong>Remediation:</strong> How to fix the issue</li>
+    </ul>
+</div>
+
+<!-- SECTION 8: PAYMENTS -->
+<div class="section">
+    <h1>8. Payments & Billing</h1>
+    
+    <h2>Client Payment Methods</h2>
+    <table>
+        <tr>
+            <th>Method</th>
+            <th>Processing Time</th>
+        </tr>
+        <tr>
+            <td>Credit/Debit Card (Stripe)</td>
+            <td>Immediate</td>
+        </tr>
+        <tr>
+            <td>ACH Bank Transfer</td>
+            <td>3-5 business days</td>
+        </tr>
+        <tr>
+            <td>Wire Transfer</td>
+            <td>1-2 business days</td>
+        </tr>
+        <tr>
+            <td>Invoice (Net-30)</td>
+            <td>Approved accounts only</td>
+        </tr>
+    </table>
+    
+    <h2>Pentester Payout Methods</h2>
+    <table>
+        <tr>
+            <th>Method</th>
+            <th>Processing Time</th>
+            <th>Fees</th>
+        </tr>
+        <tr>
+            <td>Bank Transfer (SWIFT)</td>
+            <td>3-5 business days</td>
+            <td>$25 flat</td>
+        </tr>
+        <tr>
+            <td>PayPal</td>
+            <td>1-2 business days</td>
+            <td>2.9% + $0.30</td>
+        </tr>
+        <tr>
+            <td>Wise</td>
+            <td>1-2 business days</td>
+            <td>~1%</td>
+        </tr>
+        <tr>
+            <td>Crypto (USDT/USDC)</td>
+            <td>Same day</td>
+            <td>Network fees only</td>
+        </tr>
+    </table>
+    
+    <h2>Bonus Structure</h2>
+    <table>
+        <tr>
+            <th>Bonus Type</th>
+            <th>Amount</th>
+        </tr>
+        <tr>
+            <td>Critical Finding</td>
+            <td>+$500 each</td>
+        </tr>
+        <tr>
+            <td>High Finding</td>
+            <td>+$200 each</td>
+        </tr>
+        <tr>
+            <td>Quality Bonus</td>
+            <td>Up to +20%</td>
+        </tr>
+        <tr>
+            <td>Speed Bonus</td>
+            <td>+10% (early completion)</td>
+        </tr>
+    </table>
+</div>
+
+<!-- SECTION 9: SECURITY -->
+<div class="section">
+    <h1>9. Security Architecture</h1>
+    
+    <h2>Authentication</h2>
+    <table>
+        <tr>
+            <th>Feature</th>
+            <th>Implementation</th>
+        </tr>
+        <tr>
+            <td>Password Hashing</td>
+            <td>bcrypt (12 rounds)</td>
+        </tr>
+        <tr>
+            <td>Access Tokens</td>
+            <td>JWT (15-minute expiry)</td>
+        </tr>
+        <tr>
+            <td>Refresh Tokens</td>
+            <td>JWT (7-day expiry)</td>
+        </tr>
+        <tr>
+            <td>Rate Limiting</td>
+            <td>5 attempts/5 min per account</td>
+        </tr>
+        <tr>
+            <td>Account Lockout</td>
+            <td>15 minutes after max attempts</td>
+        </tr>
+    </table>
+    
+    <h2>Password Policy</h2>
+    <ul>
+        <li>Minimum 12 characters</li>
+        <li>At least one uppercase letter</li>
+        <li>At least one lowercase letter</li>
+        <li>At least one number</li>
+        <li>At least one special character</li>
+        <li>Common password detection</li>
+    </ul>
+    
+    <h2>Security Headers</h2>
+    <table>
+        <tr>
+            <th>Header</th>
+            <th>Value</th>
+        </tr>
+        <tr>
+            <td>X-Frame-Options</td>
+            <td>DENY</td>
+        </tr>
+        <tr>
+            <td>X-Content-Type-Options</td>
+            <td>nosniff</td>
+        </tr>
+        <tr>
+            <td>X-XSS-Protection</td>
+            <td>1; mode=block</td>
+        </tr>
+        <tr>
+            <td>Strict-Transport-Security</td>
+            <td>max-age=31536000; includeSubDomains</td>
+        </tr>
+        <tr>
+            <td>Referrer-Policy</td>
+            <td>strict-origin-when-cross-origin</td>
+        </tr>
+    </table>
+</div>
+
+<!-- SECTION 10: TECHNICAL REFERENCE -->
+<div class="section">
+    <h1>10. Technical Reference</h1>
+    
+    <h2>Technology Stack</h2>
+    <table>
+        <tr>
+            <th>Component</th>
+            <th>Technology</th>
+        </tr>
+        <tr>
+            <td>Backend Framework</td>
+            <td>Flask (Python)</td>
+        </tr>
+        <tr>
+            <td>Database</td>
+            <td>SQLite (PostgreSQL for production)</td>
+        </tr>
+        <tr>
+            <td>Authentication</td>
+            <td>JWT + bcrypt</td>
+        </tr>
+        <tr>
+            <td>Email</td>
+            <td>Flask-Mail (SMTP)</td>
+        </tr>
+        <tr>
+            <td>PDF Generation</td>
+            <td>WeasyPrint</td>
+        </tr>
+        <tr>
+            <td>Web Server</td>
+            <td>Gunicorn + Nginx</td>
+        </tr>
+    </table>
+    
+    <h2>Database Tables</h2>
+    <table>
+        <tr>
+            <th>Table</th>
+            <th>Purpose</th>
+        </tr>
+        <tr>
+            <td>ptaas_users</td>
+            <td>User accounts (clients, pentesters, admins)</td>
+        </tr>
+        <tr>
+            <td>pentests</td>
+            <td>Pentest engagements</td>
+        </tr>
+        <tr>
+            <td>pentest_pentesters</td>
+            <td>Pentester assignments</td>
+        </tr>
+        <tr>
+            <td>ptaas_findings</td>
+            <td>Vulnerability findings</td>
+        </tr>
+        <tr>
+            <td>postings</td>
+            <td>Job opportunities</td>
+        </tr>
+        <tr>
+            <td>feedback</td>
+            <td>Client ratings</td>
+        </tr>
+        <tr>
+            <td>reports</td>
+            <td>Generated reports</td>
+        </tr>
+        <tr>
+            <td>payments</td>
+            <td>Payment records</td>
+        </tr>
+    </table>
+</div>
+
+<!-- SECTION 11: API ENDPOINTS -->
+<div class="section">
+    <h1>11. API Endpoints</h1>
+    
+    <h2>Authentication API (/api/v2/auth)</h2>
+    <table>
+        <tr>
+            <th>Method</th>
+            <th>Endpoint</th>
+            <th>Description</th>
+        </tr>
+        <tr>
+            <td>POST</td>
+            <td>/login</td>
+            <td>Authenticate and get JWT tokens</td>
+        </tr>
+        <tr>
+            <td>POST</td>
+            <td>/register</td>
+            <td>Create new user account</td>
+        </tr>
+        <tr>
+            <td>POST</td>
+            <td>/refresh</td>
+            <td>Refresh access token</td>
+        </tr>
+        <tr>
+            <td>POST</td>
+            <td>/logout</td>
+            <td>Invalidate tokens</td>
+        </tr>
+        <tr>
+            <td>GET</td>
+            <td>/me</td>
+            <td>Get current user info</td>
+        </tr>
+        <tr>
+            <td>POST</td>
+            <td>/change-password</td>
+            <td>Update password</td>
+        </tr>
+    </table>
+    
+    <h2>PTaaS API (/api/ptaas)</h2>
+    <table>
+        <tr>
+            <th>Method</th>
+            <th>Endpoint</th>
+            <th>Description</th>
+        </tr>
+        <tr>
+            <td>GET</td>
+            <td>/pentests</td>
+            <td>List user's pentests</td>
+        </tr>
+        <tr>
+            <td>GET</td>
+            <td>/pentests/:id</td>
+            <td>Get pentest details</td>
+        </tr>
+        <tr>
+            <td>GET</td>
+            <td>/pentests/:id/findings</td>
+            <td>Get pentest findings</td>
+        </tr>
+        <tr>
+            <td>POST</td>
+            <td>/findings</td>
+            <td>Submit new finding</td>
+        </tr>
+        <tr>
+            <td>PUT</td>
+            <td>/findings/:id</td>
+            <td>Update finding</td>
+        </tr>
+        <tr>
+            <td>GET</td>
+            <td>/postings</td>
+            <td>List open postings</td>
+        </tr>
+        <tr>
+            <td>POST</td>
+            <td>/postings/:id/apply</td>
+            <td>Apply to posting</td>
+        </tr>
+    </table>
+</div>
+
+<!-- SECTION 12: SUPPORT -->
+<div class="section">
+    <h1>12. Support & Contact</h1>
+    
+    <h2>Support Channels</h2>
+    <table>
+        <tr>
+            <th>Channel</th>
+            <th>Contact</th>
+            <th>Response Time</th>
+        </tr>
+        <tr>
+            <td>General Support</td>
+            <td>support@redconoffence.com</td>
+            <td>24 hours</td>
+        </tr>
+        <tr>
+            <td>Sales</td>
+            <td>sales@redconoffence.com</td>
+            <td>4 hours</td>
+        </tr>
+        <tr>
+            <td>Billing</td>
+            <td>billing@redconoffence.com</td>
+            <td>24 hours</td>
+        </tr>
+        <tr>
+            <td>Security</td>
+            <td>security@redconoffence.com</td>
+            <td>1 hour</td>
+        </tr>
+        <tr>
+            <td>Emergency</td>
+            <td>+1-XXX-XXX-XXXX</td>
+            <td>Immediate</td>
+        </tr>
+    </table>
+    
+    <h2>SLA Response Times</h2>
+    <table>
+        <tr>
+            <th>Severity</th>
+            <th>Initial Response</th>
+            <th>Resolution Target</th>
+        </tr>
+        <tr>
+            <td>Critical</td>
+            <td>1 hour</td>
+            <td>24 hours</td>
+        </tr>
+        <tr>
+            <td>High</td>
+            <td>4 hours</td>
+            <td>72 hours</td>
+        </tr>
+        <tr>
+            <td>Medium</td>
+            <td>24 hours</td>
+            <td>1 week</td>
+        </tr>
+        <tr>
+            <td>Low</td>
+            <td>48 hours</td>
+            <td>2 weeks</td>
+        </tr>
+    </table>
+    
+    <div class="highlight" style="margin-top: 40px; text-align: center;">
+        <strong style="font-size: 14pt;">REDCON OFFENCE</strong><br>
+        <em>Unmatched Perception. Unbroken Will.</em><br><br>
+        <strong>Website:</strong> redconoffence.com<br>
+        <strong>Platform:</strong> platform.redconoffence.com
+    </div>
+</div>
+
+</body>
+</html>

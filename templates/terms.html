@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terms of Service - REDCON OFFENCE</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0d1117;
+            --bg-card: #161b22;
+            --border: #2d333b;
+            --text-primary: #f0f3f6;
+            --text-secondary: #9198a1;
+            --red-primary: #c9353f;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            line-height: 1.7;
+        }
+
+        /* Military Tactical Background */
+        .bg-gradient {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: 
+                radial-gradient(ellipse at 70% 10%, rgba(201, 53, 63, 0.12) 0%, transparent 50%),
+                radial-gradient(ellipse at 20% 90%, rgba(88, 166, 255, 0.04) 0%, transparent 45%);
+            z-index: -2;
+            pointer-events: none;
+        }
+
+        .bg-tactical {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            z-index: -1;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .bg-tactical::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: 
+                linear-gradient(rgba(220, 53, 69, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(220, 53, 69, 0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+        }
+
+        .radar-sweep {
+            position: absolute;
+            top: 50%; left: 50%;
+            width: 800px; height: 800px;
+            transform: translate(-50%, -50%);
+            opacity: 0.15;
+        }
+
+        .radar-sweep::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            border: 1px solid rgba(220, 53, 69, 0.2);
+            border-radius: 50%;
+        }
+
+        .radar-sweep::after {
+            content: '';
+            position: absolute;
+            top: 50%; left: 50%;
+            width: 50%; height: 2px;
+            background: linear-gradient(90deg, rgba(220, 53, 69, 0.6), transparent);
+            transform-origin: left center;
+            animation: radarSweep 8s linear infinite;
+        }
+
+        @keyframes radarSweep {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .crosshair {
+            position: absolute;
+            width: 200px; height: 200px;
+            opacity: 0.08;
+        }
+
+        .crosshair::before, .crosshair::after {
+            content: '';
+            position: absolute;
+            background: var(--red-primary);
+        }
+
+        .crosshair::before { top: 50%; left: 0; right: 0; height: 1px; }
+        .crosshair::after { left: 50%; top: 0; bottom: 0; width: 1px; }
+
+        .crosshair-1 { top: 10%; right: 15%; }
+        .crosshair-2 { bottom: 20%; left: 10%; transform: scale(0.6); }
+
+        .corner-bracket {
+            position: absolute;
+            width: 80px; height: 80px;
+            opacity: 0.15;
+        }
+
+        .corner-bracket::before, .corner-bracket::after {
+            content: '';
+            position: absolute;
+            background: var(--red-primary);
+        }
+
+        .corner-tl { top: 5%; left: 5%; }
+        .corner-tl::before { top: 0; left: 0; width: 30px; height: 2px; }
+        .corner-tl::after { top: 0; left: 0; width: 2px; height: 30px; }
+
+        .corner-br { bottom: 5%; right: 5%; }
+        .corner-br::before { bottom: 0; right: 0; width: 30px; height: 2px; }
+        .corner-br::after { bottom: 0; right: 0; width: 2px; height: 30px; }
+
+        .scan-line {
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(220, 53, 69, 0.3), transparent);
+            animation: scanDown 6s ease-in-out infinite;
+        }
+
+        @keyframes scanDown {
+            0%, 100% { top: 0; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { top: 100%; opacity: 0; }
+        }
+
+        .nav {
+            background: rgba(13, 17, 23, 0.95);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo img { height: 45px; }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .nav-links a:hover { color: var(--text-primary); }
+
+        .btn {
+            padding: 0.6rem 1.25rem;
+            background: var(--red-primary);
+            color: white;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .last-updated {
+            color: var(--text-secondary);
+            margin-bottom: 3rem;
+        }
+
+        h2 {
+            font-size: 1.4rem;
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            color: var(--red-primary);
+        }
+
+        p, li {
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+
+        ul {
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        a { color: var(--red-primary); }
+
+        .footer {
+            background: var(--bg-card);
+            border-top: 1px solid var(--border);
+            padding: 3rem 2rem;
+            margin-top: 4rem;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 3rem;
+        }
+
+        .footer-brand img { height: 40px; margin-bottom: 1rem; }
+        .footer-brand p { color: var(--text-secondary); font-size: 0.9rem; }
+
+        .footer-column h4 {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .footer-column a {
+            display: block;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-column a:hover { color: var(--red-primary); }
+
+        .footer-bottom {
+            max-width: 1200px;
+            margin: 2rem auto 0;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        .social-links { display: flex; gap: 1rem; }
+        .social-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 1.2rem;
+        }
+        .social-links a:hover { color: var(--red-primary); }
+
+        @media (max-width: 768px) {
+            .nav { padding: 0.75rem 1rem; }
+            .content-container { padding: 1.5rem; margin: 1rem; }
+            h1 { font-size: 1.75rem; }
+            h2 { font-size: 1.25rem; }
+            .footer { padding: 2rem 1rem; }
+            .footer-content { grid-template-columns: 1fr; text-align: center; gap: 1.5rem; }
+            .footer-brand { text-align: center; }
+            .footer-brand img { margin: 0 auto 1rem; display: block; }
+            .footer-column { text-align: center; }
+            .footer-bottom { flex-direction: column; gap: 1rem; text-align: center; }
+            .social-links { justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-gradient"></div>
+    <div class="bg-tactical">
+        <div class="radar-sweep"></div>
+        <div class="crosshair crosshair-1"></div>
+        <div class="crosshair crosshair-2"></div>
+        <div class="corner-bracket corner-tl"></div>
+        <div class="corner-bracket corner-br"></div>
+        <div class="scan-line"></div>
+    </div>
+
+    <nav class="nav">
+        <a href="/" class="logo">
+            <img src="/static/logo.png" alt="REDCON OFFENCE">
+        </a>
+        <div class="nav-links">
+            <a href="/#scanner">Products</a>
+            <a href="/#pricing">Pricing</a>
+            <a href="/team">Team</a>
+            <a href="https://platform.redconoffence.com" class="btn">Client Portal →</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1>Terms of Service</h1>
+        <p class="last-updated">Last updated: January 2026</p>
+
+        <h2>1. Acceptance of Terms</h2>
+        <p>By accessing or using REDCON OFFENCE services ("Services"), you agree to be bound by these Terms of Service ("Terms"). If you do not agree to these Terms, do not use our Services.</p>
+
+        <h2>2. Description of Services</h2>
+        <p>REDCON OFFENCE provides:</p>
+        <ul>
+            <li><strong>REDCON HAWK:</strong> AI-powered automated vulnerability scanning and threat intelligence tools</li>
+            <li><strong>REDCON BLACKOPS (OSaaS):</strong> Offensive Security as a Service conducted by certified security professionals</li>
+        </ul>
+
+        <h2>3. User Accounts</h2>
+        <p>To access certain features, you must create an account. You are responsible for:</p>
+        <ul>
+            <li>Maintaining the confidentiality of your account credentials</li>
+            <li>All activities that occur under your account</li>
+            <li>Notifying us immediately of any unauthorized use</li>
+        </ul>
+
+        <h2>4. Acceptable Use</h2>
+        <p>You agree NOT to use our Services to:</p>
+        <ul>
+            <li>Scan or test systems you do not own or have explicit permission to test</li>
+            <li>Conduct any illegal activities or violate any laws</li>
+            <li>Attempt to gain unauthorized access to our systems</li>
+            <li>Distribute malware, viruses, or harmful code</li>
+            <li>Harass, abuse, or harm others</li>
+        </ul>
+
+        <h2>5. Authorization Requirements</h2>
+        <p>For all penetration testing and security assessments:</p>
+        <ul>
+            <li>You must have written authorization from the system owner</li>
+            <li>You are solely responsible for obtaining proper permissions</li>
+            <li>REDCON OFFENCE is not liable for unauthorized testing activities</li>
+        </ul>
+
+        <h2>6. Payment Terms</h2>
+        <p>For paid services:</p>
+        <ul>
+            <li>Fees are due as specified in your subscription or service agreement</li>
+            <li>All payments are non-refundable unless otherwise stated</li>
+            <li>We reserve the right to modify pricing with 30 days notice</li>
+        </ul>
+
+        <h2>7. Confidentiality</h2>
+        <p>We treat all scan results, vulnerability reports, and client data as confidential. We will not disclose your information to third parties except as required by law.</p>
+
+        <h2>8. Limitation of Liability</h2>
+        <p>REDCON OFFENCE provides services "as is" without warranties of any kind. We are not liable for:</p>
+        <ul>
+            <li>Indirect, incidental, or consequential damages</li>
+            <li>Loss of data, profits, or business opportunities</li>
+            <li>Damages exceeding the fees paid for services</li>
+        </ul>
+
+        <h2>9. Indemnification</h2>
+        <p>You agree to indemnify and hold REDCON OFFENCE harmless from any claims, damages, or expenses arising from your use of our Services or violation of these Terms.</p>
+
+        <h2>10. Termination</h2>
+        <p>We may terminate or suspend your access to Services immediately, without notice, for conduct that we believe violates these Terms or is harmful to other users or our business.</p>
+
+        <h2>11. Changes to Terms</h2>
+        <p>We reserve the right to modify these Terms at any time. Continued use of Services after changes constitutes acceptance of the new Terms.</p>
+
+        <h2>12. Contact</h2>
+        <p>For questions about these Terms, contact us at:</p>
+        <p><strong>Email:</strong> <a href="mailto:legal@redconoffence.com">legal@redconoffence.com</a></p>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <img src="/static/logo.png" alt="REDCON OFFENCE">
+                <p>Unmatched Perception. Unbroken Will.</p>
+                <p style="margin-top: 1rem;">Military-grade offensive security solutions for modern threats.</p>
+            </div>
+            <div class="footer-column">
+                <h4>Products</h4>
+                <a href="/#scanner">REDCON HAWK</a>
+                <a href="/#osaas">REDCON BLACKOPS</a>
+                <a href="/#pricing">Pricing</a>
+            </div>
+            <div class="footer-column">
+                <h4>Company</h4>
+                <a href="/team">Team</a>
+                <a href="/osaas">Request Pentest</a>
+                <a href="https://platform.redconoffence.com">Client Portal</a>
+            </div>
+            <div class="footer-column">
+                <h4>Legal</h4>
+                <a href="/terms">Terms of Service</a>
+                <a href="/privacy">Privacy Policy</a>
+                <a href="mailto:legal@redconoffence.com">Contact</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2026 REDCON OFFENCE. All rights reserved.</p>
+            <div class="social-links">
+                <a href="https://twitter.com/N3dx0o" target="_blank" title="Twitter">𝕏</a>
+                <a href="https://www.linkedin.com/company/redcon-offence/" target="_blank" title="LinkedIn">in</a>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
+

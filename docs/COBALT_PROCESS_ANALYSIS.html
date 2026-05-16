@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cobalt PTaaS Process Analysis - REDCON OFFENCE</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.7;
+            color: #1a1a2e;
+            background: #fff;
+            padding: 40px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        @media print {
+            body {
+                padding: 20px;
+                font-size: 11pt;
+            }
+            .no-print { display: none; }
+            h1, h2, h3 { page-break-after: avoid; }
+            table, pre { page-break-inside: avoid; }
+        }
+        
+        .print-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #c9353f, #a02830);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            box-shadow: 0 4px 15px rgba(201, 53, 63, 0.3);
+        }
+        .print-btn:hover { transform: translateY(-2px); }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+            padding-bottom: 30px;
+            border-bottom: 3px solid #c9353f;
+        }
+        
+        .logo {
+            font-size: 28px;
+            font-weight: 700;
+            color: #c9353f;
+            margin-bottom: 10px;
+        }
+        
+        h1 {
+            font-size: 32px;
+            color: #1a1a2e;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #666;
+            font-size: 18px;
+        }
+        
+        h2 {
+            font-size: 24px;
+            color: #c9353f;
+            margin: 40px 0 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #eee;
+        }
+        
+        h3 {
+            font-size: 18px;
+            color: #1a1a2e;
+            margin: 25px 0 15px;
+        }
+        
+        h4 {
+            font-size: 16px;
+            color: #444;
+            margin: 20px 0 10px;
+        }
+        
+        p {
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        ul, ol {
+            margin: 15px 0 15px 25px;
+        }
+        
+        li {
+            margin-bottom: 8px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 14px;
+        }
+        
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #1a1a2e;
+        }
+        
+        tr:nth-child(even) {
+            background: #fafafa;
+        }
+        
+        .highlight-box {
+            background: linear-gradient(135deg, #fff5f5, #fff);
+            border-left: 4px solid #c9353f;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .phase-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 20px 0;
+            border: 1px solid #eee;
+        }
+        
+        .phase-number {
+            display: inline-block;
+            background: #c9353f;
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 35px;
+            font-weight: 700;
+            margin-right: 15px;
+        }
+        
+        .phase-title {
+            display: inline-block;
+            font-size: 20px;
+            font-weight: 600;
+            color: #1a1a2e;
+        }
+        
+        .toc {
+            background: #f8f9fa;
+            padding: 25px 35px;
+            border-radius: 12px;
+            margin: 30px 0;
+        }
+        
+        .toc h3 {
+            margin-top: 0;
+            color: #c9353f;
+        }
+        
+        .toc ol {
+            margin: 15px 0 0 20px;
+        }
+        
+        .toc li {
+            margin-bottom: 8px;
+        }
+        
+        .toc a {
+            color: #1a1a2e;
+            text-decoration: none;
+        }
+        
+        .toc a:hover {
+            color: #c9353f;
+        }
+        
+        .footer {
+            margin-top: 60px;
+            padding-top: 20px;
+            border-top: 2px solid #eee;
+            text-align: center;
+            color: #888;
+            font-size: 13px;
+        }
+        
+        code {
+            background: #f1f1f1;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+        }
+        
+        .checklist {
+            list-style: none;
+            margin-left: 0;
+        }
+        
+        .checklist li {
+            position: relative;
+            padding-left: 30px;
+        }
+        
+        .checklist li::before {
+            content: "☐";
+            position: absolute;
+            left: 0;
+            color: #c9353f;
+        }
+        
+        .checklist li.done::before {
+            content: "☑";
+            color: #2ed573;
+        }
+    </style>
+</head>
+<body>
+    <button class="print-btn no-print" onclick="window.print()">📄 Save as PDF</button>
+    
+    <div class="header">
+        <div class="logo">REDCON OFFENCE</div>
+        <h1>Cobalt PTaaS Process Analysis</h1>
+        <p class="subtitle">From Demo Call to Pentest Completion</p>
+        <p style="color: #888; font-size: 14px; margin-top: 15px;">Internal Strategy Document • January 2026</p>
+    </div>
+    
+    <div class="toc">
+        <h3>Table of Contents</h3>
+        <ol>
+            <li><a href="#sales">Sales & Client Acquisition</a></li>
+            <li><a href="#demo">Demo Call Process</a></li>
+            <li><a href="#onboarding">Client Onboarding</a></li>
+            <li><a href="#lifecycle">The 6-Phase Pentest Lifecycle</a></li>
+            <li><a href="#pentester">Pentester Perspective</a></li>
+            <li><a href="#pricing">Pricing Model</a></li>
+            <li><a href="#platform">Platform Features</a></li>
+            <li><a href="#replicate">How to Replicate for REDCON OFFENCE</a></li>
+        </ol>
+    </div>
+    
+    <h2 id="sales">1. Sales & Client Acquisition</h2>
+    
+    <h3>Lead Generation Channels</h3>
+    <ul>
+        <li><strong>Inbound Marketing:</strong> SEO, content marketing, webinars, case studies</li>
+        <li><strong>Outbound Sales:</strong> Cold outreach to CISOs, Security Directors, CTOs</li>
+        <li><strong>Partner Referrals:</strong> Resellers, MSPs, consulting firms</li>
+        <li><strong>Events:</strong> Security conferences (RSA, Black Hat, DEF CON)</li>
+    </ul>
+    
+    <h3>Target Customer Profile</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Segment</th>
+                <th>Company Size</th>
+                <th>Annual Security Budget</th>
+                <th>Key Decision Makers</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>SMB</td>
+                <td>50-200 employees</td>
+                <td>$50K-200K</td>
+                <td>CTO, Security Manager</td>
+            </tr>
+            <tr>
+                <td>Mid-Market</td>
+                <td>200-1000 employees</td>
+                <td>$200K-1M</td>
+                <td>CISO, VP Engineering</td>
+            </tr>
+            <tr>
+                <td>Enterprise</td>
+                <td>1000+ employees</td>
+                <td>$1M+</td>
+                <td>CISO, Security Team Leads</td>
+            </tr>
+        </tbody>
+    </table>
+    
+    <h3>Initial Contact Flow</h3>
+    <ol>
+        <li><strong>Website Form:</strong> Client fills out "Get a Demo" form</li>
+        <li><strong>SDR Outreach:</strong> Sales Development Rep qualifies the lead</li>
+        <li><strong>Discovery Call:</strong> 15-30 min call to understand needs</li>
+        <li><strong>Demo Scheduling:</strong> Book a formal platform demo</li>
+    </ol>
+    
+    <h2 id="demo">2. Demo Call Process</h2>
+    
+    <h3>Pre-Demo Preparation</h3>
+    <ul>
+        <li>Research the prospect's company (tech stack, industry, recent news)</li>
+        <li>Identify likely compliance requirements (SOC 2, PCI-DSS, HIPAA, ISO 27001)</li>
+        <li>Prepare relevant case studies from similar industries</li>
+    </ul>
+    
+    <h3>Demo Call Structure (45-60 minutes)</h3>
+    
+    <div class="phase-card">
+        <h4>Opening (5 min)</h4>
+        <ul>
+            <li>Introductions and agenda setting</li>
+            <li>Confirm attendees and their roles</li>
+            <li>Set expectations for the call</li>
+        </ul>
+    </div>
+    
+    <div class="phase-card">
+        <h4>Discovery Questions (10 min)</h4>
+        <ul>
+            <li>"What's driving your interest in penetration testing?"</li>
+            <li>"How are you currently handling security assessments?"</li>
+            <li>"What's your testing frequency? Annual? Quarterly?"</li>
+            <li>"Do you have compliance requirements?"</li>
+            <li>"What types of assets need testing? (Web apps, APIs, Mobile, Cloud, Network)"</li>
+        </ul>
+    </div>
+    
+    <div class="phase-card">
+        <h4>Platform Demo (25 min)</h4>
+        <ol>
+            <li><strong>Dashboard Overview:</strong> Show the main interface</li>
+            <li><strong>Asset Management:</strong> How to add and manage assets</li>
+            <li><strong>Pentest Launching:</strong> Walk through creating a pentest request</li>
+            <li><strong>Real-Time Findings:</strong> Show how vulnerabilities are reported live</li>
+            <li><strong>Collaboration Features:</strong> Slack integration, comments, retesting</li>
+            <li><strong>Reporting:</strong> Show sample reports, export options</li>
+            <li><strong>Integrations:</strong> Jira, GitHub, Azure DevOps connections</li>
+        </ol>
+    </div>
+    
+    <div class="phase-card">
+        <h4>Pricing Discussion (10 min) + Next Steps (5 min)</h4>
+        <ul>
+            <li>Explain credit-based pricing model</li>
+            <li>Present appropriate package based on needs</li>
+            <li>Answer remaining questions</li>
+            <li>Propose pilot/trial if applicable</li>
+            <li>Schedule follow-up, send proposal</li>
+        </ul>
+    </div>
+    
+    <h2 id="onboarding">3. Client Onboarding</h2>
+    
+    <h3>Week 1: Account Setup</h3>
+    <ol>
+        <li><strong>Platform Access:</strong> Create client account, invite team members</li>
+        <li><strong>CSM Introduction:</strong> Assign Customer Success Manager</li>
+        <li><strong>Kickoff Call:</strong> 30-min call to plan first pentest</li>
+        <li><strong>Asset Documentation:</strong> Client provides asset inventory</li>
+    </ol>
+    
+    <h3>Week 2: First Pentest Preparation</h3>
+    <ol>
+        <li><strong>Scope Definition:</strong> Define exact URLs, APIs, credentials</li>
+        <li><strong>Environment Prep:</strong> Client sets up staging/test environment</li>
+        <li><strong>Credential Sharing:</strong> Secure credential exchange</li>
+        <li><strong>Stakeholder Notification:</strong> Alert internal teams about testing</li>
+    </ol>
+    
+    <h3>Week 3+: Testing Begins</h3>
+    <ol>
+        <li><strong>Pentester Assignment:</strong> Match pentesters to tech stack</li>
+        <li><strong>Slack Channel Creation:</strong> Private channel for real-time comms</li>
+        <li><strong>Testing Execution:</strong> Pentest runs for defined duration</li>
+        <li><strong>Daily Updates:</strong> Progress updates shared with client</li>
+    </ol>
+    
+    <h2 id="lifecycle">4. The 6-Phase Pentest Lifecycle</h2>
+    
+    <div class="phase-card">
+        <span class="phase-number">1</span>
+        <span class="phase-title">DISCOVER</span>
+        <p style="margin-top: 15px;"><strong>Duration:</strong> 1-3 days before pentest</p>
+        <table>
+            <tr><th>Activity</th><th>Owner</th><th>Deliverable</th></tr>
+            <tr><td>Attack surface mapping</td><td>Cobalt Platform</td><td>Asset inventory</td></tr>
+            <tr><td>Domain scanning</td><td>Automated tools</td><td>Subdomain list</td></tr>
+            <tr><td>Technology fingerprinting</td><td>Pentesters</td><td>Tech stack report</td></tr>
+            <tr><td>Initial reconnaissance</td><td>Pentesters</td><td>Recon notes</td></tr>
+        </table>
+    </div>
+    
+    <div class="phase-card">
+        <span class="phase-number">2</span>
+        <span class="phase-title">PLAN</span>
+        <p style="margin-top: 15px;"><strong>Duration:</strong> 1-5 days</p>
+        <table>
+            <tr><th>Activity</th><th>Owner</th><th>Deliverable</th></tr>
+            <tr><td>Scope confirmation</td><td>Client + CSM</td><td>Signed scope document</td></tr>
+            <tr><td>Test credentials setup</td><td>Client</td><td>Working test accounts</td></tr>
+            <tr><td>Environment preparation</td><td>Client</td><td>Accessible test environment</td></tr>
+            <tr><td>Methodology selection</td><td>Pentesters</td><td>Testing checklist</td></tr>
+        </table>
+    </div>
+    
+    <div class="phase-card">
+        <span class="phase-number">3</span>
+        <span class="phase-title">TEST</span>
+        <p style="margin-top: 15px;"><strong>Duration:</strong> 5-14 days (depending on scope)</p>
+        <table>
+            <tr><th>Activity</th><th>Owner</th><th>Deliverable</th></tr>
+            <tr><td>Automated scanning</td><td>Pentesters</td><td>Initial scan results</td></tr>
+            <tr><td>Manual testing</td><td>Pentesters</td><td>Deep-dive findings</td></tr>
+            <tr><td>Vulnerability discovery</td><td>Pentesters</td><td>Real-time finding reports</td></tr>
+            <tr><td>Exploitation attempts</td><td>Pentesters</td><td>Proof of concepts</td></tr>
+        </table>
+        <p style="margin-top: 15px;"><strong>Methodologies:</strong> OWASP Top 10, OWASP API Security, PTES, NIST</p>
+    </div>
+    
+    <div class="phase-card">
+        <span class="phase-number">4</span>
+        <span class="phase-title">REMEDIATE</span>
+        <p style="margin-top: 15px;"><strong>Duration:</strong> Ongoing during and after testing</p>
+        <table>
+            <tr><th>Activity</th><th>Owner</th><th>Deliverable</th></tr>
+            <tr><td>Finding triage</td><td>Client</td><td>Prioritized fix list</td></tr>
+            <tr><td>Developer fixes</td><td>Client Dev Team</td><td>Code patches</td></tr>
+            <tr><td>Retest requests</td><td>Client</td><td>Retest tickets</td></tr>
+            <tr><td>Verification testing</td><td>Pentesters</td><td>Pass/fail status</td></tr>
+        </table>
+    </div>
+    
+    <div class="phase-card">
+        <span class="phase-number">5</span>
+        <span class="phase-title">REPORT</span>
+        <p style="margin-top: 15px;"><strong>Duration:</strong> 2-3 business days after testing ends</p>
+        <table>
+            <tr><th>Report Section</th><th>Content</th></tr>
+            <tr><td>Executive Summary</td><td>High-level overview for leadership</td></tr>
+            <tr><td>Scope & Methodology</td><td>What was tested and how</td></tr>
+            <tr><td>Findings Summary</td><td>Table of all vulnerabilities</td></tr>
+            <tr><td>Detailed Findings</td><td>Each vuln with description, impact, remediation</td></tr>
+            <tr><td>Evidence</td><td>Screenshots, payloads, proof of concepts</td></tr>
+            <tr><td>Recommendations</td><td>Prioritized remediation roadmap</td></tr>
+        </table>
+    </div>
+    
+    <div class="phase-card">
+        <span class="phase-number">6</span>
+        <span class="phase-title">ANALYZE</span>
+        <p style="margin-top: 15px;"><strong>Duration:</strong> Post-pentest ongoing</p>
+        <table>
+            <tr><th>Activity</th><th>Owner</th><th>Deliverable</th></tr>
+            <tr><td>Report review</td><td>Client Security Team</td><td>Action items</td></tr>
+            <tr><td>Trend analysis</td><td>Platform</td><td>Historical comparisons</td></tr>
+            <tr><td>Risk scoring</td><td>Platform</td><td>Risk posture score</td></tr>
+            <tr><td>Next pentest planning</td><td>CSM + Client</td><td>Future test schedule</td></tr>
+        </table>
+    </div>
+    
+    <h2 id="pentester">5. Pentester Perspective</h2>
+    
+    <h3>Requirements to Join</h3>
+    <ul>
+        <li>3+ years of professional pentesting experience</li>
+        <li>Relevant certifications (OSCP, OSWE, GPEN, CEH)</li>
+        <li>Strong communication skills</li>
+        <li>Background check clearance</li>
+        <li>Technical assessment passed</li>
+    </ul>
+    
+    <h3>Application Process</h3>
+    <ol>
+        <li>Online application with resume/portfolio</li>
+        <li>Technical screening (CTF-style challenges)</li>
+        <li>Interview with team</li>
+        <li>Background verification</li>
+        <li>Platform onboarding and training</li>
+    </ol>
+    
+    <h3>Compensation Model</h3>
+    <ul>
+        <li><strong>Per-finding bounties:</strong> Higher pay for critical findings</li>
+        <li><strong>Base testing fee:</strong> Guaranteed minimum for time</li>
+        <li><strong>Bonuses:</strong> Quality bonuses, client satisfaction</li>
+        <li><strong>Credits:</strong> Platform credits for future opportunities</li>
+    </ul>
+    
+    <h2 id="pricing">6. Pricing Model</h2>
+    
+    <h3>Credit-Based System</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Package</th>
+                <th>Credits</th>
+                <th>Typical Use</th>
+                <th>Price Range</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Starter</td>
+                <td>8 credits</td>
+                <td>1-2 pentests/year</td>
+                <td>$10K-20K</td>
+            </tr>
+            <tr>
+                <td>Professional</td>
+                <td>16 credits</td>
+                <td>3-4 pentests/year</td>
+                <td>$30K-50K</td>
+            </tr>
+            <tr>
+                <td>Enterprise</td>
+                <td>32+ credits</td>
+                <td>Continuous testing</td>
+                <td>$75K-150K+</td>
+            </tr>
+        </tbody>
+    </table>
+    
+    <h3>Credit Consumption</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Asset Type</th>
+                <th>Credits Required</th>
+                <th>Typical Duration</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td>Small Web App</td><td>2-4 credits</td><td>5-7 days</td></tr>
+            <tr><td>Medium Web App</td><td>4-6 credits</td><td>7-10 days</td></tr>
+            <tr><td>Large Web App</td><td>6-10 credits</td><td>10-14 days</td></tr>
+            <tr><td>API (small)</td><td>2-3 credits</td><td>3-5 days</td></tr>
+            <tr><td>API (large)</td><td>4-6 credits</td><td>7-10 days</td></tr>
+            <tr><td>Mobile App</td><td>4-6 credits</td><td>7-10 days</td></tr>
+            <tr><td>Cloud Infrastructure</td><td>4-8 credits</td><td>7-14 days</td></tr>
+        </tbody>
+    </table>
+    
+    <h2 id="platform">7. Platform Features</h2>
+    
+    <h3>For Clients</h3>
+    <ul>
+        <li><strong>Dashboard:</strong> Overview of all pentests and findings</li>
+        <li><strong>Asset Management:</strong> Track all testable assets</li>
+        <li><strong>Finding Management:</strong> View, comment, retest findings</li>
+        <li><strong>Reports:</strong> Download PDF/HTML reports</li>
+        <li><strong>Integrations:</strong> Jira, GitHub, Slack, Azure DevOps</li>
+        <li><strong>Compliance Mapping:</strong> Map findings to frameworks</li>
+    </ul>
+    
+    <h3>For Pentesters</h3>
+    <ul>
+        <li><strong>Assignment Board:</strong> View available pentests</li>
+        <li><strong>Testing Interface:</strong> Submit findings with templates</li>
+        <li><strong>Communication:</strong> Slack integration for client chat</li>
+        <li><strong>Payout Tracking:</strong> View earnings and payment history</li>
+    </ul>
+    
+    <h3>For Admins</h3>
+    <ul>
+        <li><strong>User Management:</strong> Manage clients and pentesters</li>
+        <li><strong>Pentest Oversight:</strong> Monitor all active tests</li>
+        <li><strong>Quality Assurance:</strong> Review findings before client sees</li>
+        <li><strong>Financial Management:</strong> Track credits, payments</li>
+    </ul>
+    
+    <h2 id="replicate">8. How to Replicate for REDCON OFFENCE</h2>
+    
+    <div class="highlight-box">
+        <h3>Key Differentiators for REDCON OFFENCE</h3>
+        <table>
+            <tr><th>Cobalt</th><th>REDCON OFFENCE (Suggested)</th></tr>
+            <tr><td>Global pentester pool</td><td>Regional expertise (Turkey/Middle East focus)</td></tr>
+            <tr><td>Credit-based pricing</td><td>Flexible project-based or subscription</td></tr>
+            <tr><td>Generic methodologies</td><td>Industry-specific playbooks</td></tr>
+            <tr><td>Standard reporting</td><td>Compliance-focused reports (KVKK, BDDK)</td></tr>
+        </table>
+    </div>
+    
+    <h3>90-Day Launch Roadmap</h3>
+    
+    <h4>Month 1: Foundation</h4>
+    <ul class="checklist">
+        <li class="done">Client Dashboard - Basic implementation</li>
+        <li class="done">Admin Dashboard - Basic implementation</li>
+        <li class="done">Pentester Dashboard - Basic implementation</li>
+        <li>Finding submission interface</li>
+        <li>Real-time notification system</li>
+        <li>Report generation (PDF)</li>
+        <li>Integrations (Jira, Slack)</li>
+    </ul>
+    
+    <h4>Month 2: Go-to-Market</h4>
+    <ul class="checklist">
+        <li>Create sales materials, pricing</li>
+        <li>Recruit 3-5 core pentesters</li>
+        <li>Soft launch with 2-3 pilot clients</li>
+    </ul>
+    
+    <h4>Month 3: Scale</h4>
+    <ul class="checklist">
+        <li>Gather feedback, iterate</li>
+        <li>Full launch, marketing push</li>
+        <li>Scale pentester team</li>
+    </ul>
+    
+    <div class="highlight-box">
+        <h3>Success Factors</h3>
+        <ol>
+            <li><strong>Regional Expertise:</strong> Turkey/Middle East market knowledge</li>
+            <li><strong>Personal Touch:</strong> Smaller team = better relationships</li>
+            <li><strong>Compliance Specialization:</strong> KVKK, BDDK, local regulations</li>
+            <li><strong>Competitive Pricing:</strong> Undercut enterprise pricing</li>
+            <li><strong>Fast Turnaround:</strong> Agile, responsive service</li>
+        </ol>
+    </div>
+    
+    <div class="footer">
+        <p><strong>REDCON OFFENCE</strong> - Internal Strategy Document</p>
+        <p>Created January 2026 • Confidential</p>
+    </div>
+</body>
+</html>
+
+
+
+

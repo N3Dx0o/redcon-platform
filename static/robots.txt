@@ -1,0 +1,14 @@
+# REDCON OFFENCE - robots.txt
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /dashboard
+Disallow: /portal
+
+# Sitemap
+Sitemap: https://redconoffence.com/static/sitemap.xml
+
+
+
+
+
