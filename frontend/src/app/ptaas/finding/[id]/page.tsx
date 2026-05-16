@@ -302,7 +302,7 @@ export default function PentesterFindingPage() {
                   <option value="retest">Retest</option>
                   <option value="verified">Verified</option>
                   <option value="duplicate">Duplicate</option>
-                  <option value="wont_fix">Won't fix</option>
+                  <option value="wont_fix">Won&apos;t fix</option>
                 </select>
               </div>
 

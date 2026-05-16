@@ -3,16 +3,15 @@ Email notification service using Google Workspace SMTP
 Handles all email notifications for the REDCON platform
 """
 import smtplib
+import os as _os
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from typing import Optional, List, Dict
-from datetime import datetime
 
 
 # Google Workspace SMTP configuration
 SMTP_HOST = "smtp.gmail.com"
 SMTP_PORT = 587
-import os as _os
 SMTP_USERNAME = _os.getenv("SMTP_USERNAME", "notification@redconoffence.com")
 SMTP_PASSWORD = _os.getenv("SMTP_PASSWORD")
 FROM_EMAIL = "notification@redconoffence.com"
@@ -29,7 +28,7 @@ def send_email(
 ) -> bool:
     """
     Send an email via Google Workspace SMTP
-    
+
     Args:
         to_email: Recipient email address
         subject: Email subject
@@ -37,7 +36,7 @@ def send_email(
         text_body: Plain text fallback (optional)
         category: Email category for tracking
         reply_to: Reply-to email address
-    
+
     Returns:
         True if sent successfully, False otherwise
     """
@@ -47,22 +46,22 @@ def send_email(
         msg['From'] = f"{FROM_NAME} <{FROM_EMAIL}>"
         msg['To'] = to_email
         msg['Subject'] = subject
-        
+
         if reply_to:
             msg['Reply-To'] = reply_to
-        
+
         # Add X-Category header for tracking
         msg['X-Category'] = category
-        
+
         # Attach text version (if provided)
         if text_body:
             part_text = MIMEText(text_body, 'plain', 'utf-8')
             msg.attach(part_text)
-        
+
         # Attach HTML version
         part_html = MIMEText(html_body, 'html', 'utf-8')
         msg.attach(part_html)
-        
+
         # Send via SMTP
         with smtplib.SMTP(SMTP_HOST, SMTP_PORT) as server:
             server.ehlo()
@@ -70,9 +69,9 @@ def send_email(
             server.ehlo()
             server.login(SMTP_USERNAME, SMTP_PASSWORD)
             server.send_message(msg)
-        
+
         return True
-        
+
     except Exception as e:
         print(f"[EMAIL ERROR] Failed to send to {to_email}: {str(e)}")
         return False
@@ -87,7 +86,7 @@ def send_bulk_email(
 ) -> Dict[str, bool]:
     """
     Send email to multiple recipients
-    
+
     Returns:
         Dict mapping email addresses to success status
     """
@@ -123,14 +122,14 @@ def _email_wrapper(content: str) -> str:
                             <p style="margin: 5px 0 0; color: rgba(255,255,255,0.7); font-size: 12px; letter-spacing: 2px; text-transform: uppercase;">Offensive Security</p>
                         </td>
                     </tr>
-                    
+
                     <!-- Content -->
                     <tr>
                         <td style="padding: 40px 30px;">
                             {content}
                         </td>
                     </tr>
-                    
+
                     <!-- Footer -->
                     <tr>
                         <td style="background: #f8f9fa; padding: 20px 30px; border-top: 1px solid #e9ecef;">
@@ -163,7 +162,7 @@ def email_pentest_request_to_admin(pentest_id: str, pentest_title: str, client_n
             <p style="margin: 0; color: #555;"><strong>ID:</strong> {pentest_id}</p>
         </div>
         <p style="margin: 20px 0 0;">
-            <a href="https://platform.redconoffence.com/app/admin/pentests" 
+            <a href="https://platform.redconoffence.com/app/admin/pentests"
                style="display: inline-block; background: #e84855; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600;">
                 Review Request
             </a>
@@ -185,7 +184,7 @@ def email_pentest_approved(pentest_id: str, pentest_title: str, start_date: str,
             <p style="margin: 0; color: #555;"><strong>Start Date:</strong> {start_date}</p>
         </div>
         <p style="margin: 20px 0 0;">
-            <a href="https://platform.redconoffence.com/app/client/pentests" 
+            <a href="https://platform.redconoffence.com/app/client/pentests"
                style="display: inline-block; background: #e84855; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600;">
                 View Details
             </a>
@@ -206,7 +205,7 @@ def email_pentest_rejected(pentest_title: str, reason: str, client_name: str) ->
             <p style="margin: 0; color: #555;">{reason or 'Please contact us for more details.'}</p>
         </div>
         <p style="margin: 20px 0 0;">
-            <a href="https://platform.redconoffence.com/app/client/pentests" 
+            <a href="https://platform.redconoffence.com/app/client/pentests"
                style="display: inline-block; background: #e84855; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600;">
                 Contact Support
             </a>
@@ -228,7 +227,7 @@ def email_pentester_assigned(pentest_id: str, pentest_title: str, pentester_name
             <p style="margin: 0; color: #555;"><strong>Start Date:</strong> {start_date}</p>
         </div>
         <p style="margin: 20px 0 0;">
-            <a href="https://platform.redconoffence.com/app/ptaas/pentests" 
+            <a href="https://platform.redconoffence.com/app/ptaas/pentests"
                style="display: inline-block; background: #e84855; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600;">
                 View Assignment
             </a>
@@ -253,7 +252,7 @@ def email_pentest_started(pentest_id: str, pentest_title: str, start_date: str) 
             Our team is now actively testing your systems. You'll receive updates as findings are identified.
         </p>
         <p style="margin: 20px 0 0;">
-            <a href="https://platform.redconoffence.com/app/client/pentests" 
+            <a href="https://platform.redconoffence.com/app/client/pentests"
                style="display: inline-block; background: #e84855; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600;">
                 View Progress
             </a>
@@ -275,7 +274,7 @@ def email_pentest_finished(pentest_id: str, pentest_title: str, findings_count: 
             <p style="margin: 0; color: #555;"><strong>Findings Identified:</strong> {findings_count}</p>
         </div>
         <p style="margin: 20px 0 0;">
-            <a href="https://platform.redconoffence.com/app/client/reports" 
+            <a href="https://platform.redconoffence.com/app/client/reports"
                style="display: inline-block; background: #e84855; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600;">
                 Generate Report
             </a>
@@ -296,7 +295,7 @@ def email_report_generated(pentest_id: str, pentest_title: str, report_url: str)
             <p style="margin: 0; color: #555;"><strong>ID:</strong> {pentest_id}</p>
         </div>
         <p style="margin: 20px 0 0;">
-            <a href="https://platform.redconoffence.com/app/client/reports" 
+            <a href="https://platform.redconoffence.com/app/client/reports"
                style="display: inline-block; background: #e84855; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600;">
                 Download Report
             </a>
@@ -315,7 +314,7 @@ def email_new_finding(finding_id: str, finding_title: str, severity: str, pentes
         "info": "#6c757d"
     }
     color = severity_colors.get(severity.lower(), "#6c757d")
-    
+
     content = f"""
         <h2 style="margin: 0 0 20px; color: #1a1a2e; font-size: 22px;">New Security Finding</h2>
         <p style="margin: 0 0 15px; color: #333; line-height: 1.6;">
@@ -325,14 +324,14 @@ def email_new_finding(finding_id: str, finding_title: str, severity: str, pentes
             <p style="margin: 0 0 8px; color: #555;"><strong>Finding:</strong> {finding_title}</p>
             <p style="margin: 0 0 8px; color: #555;"><strong>ID:</strong> {finding_id}</p>
             <p style="margin: 0; color: #555;">
-                <strong>Severity:</strong> 
+                <strong>Severity:</strong>
                 <span style="background: {color}; color: white; padding: 3px 10px; border-radius: 3px; font-size: 11px; text-transform: uppercase; font-weight: 600;">
                     {severity}
                 </span>
             </p>
         </div>
         <p style="margin: 20px 0 0;">
-            <a href="https://platform.redconoffence.com/app/client/findings" 
+            <a href="https://platform.redconoffence.com/app/client/findings"
                style="display: inline-block; background: #e84855; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600;">
                 View Finding
             </a>
@@ -354,7 +353,7 @@ def email_finding_status_changed(finding_id: str, finding_title: str, old_status
             <p style="margin: 0; color: #555;"><strong>Status:</strong> {old_status} → {new_status}</p>
         </div>
         <p style="margin: 20px 0 0;">
-            <a href="https://platform.redconoffence.com/app/client/findings" 
+            <a href="https://platform.redconoffence.com/app/client/findings"
                style="display: inline-block; background: #e84855; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600;">
                 View Finding
             </a>
@@ -366,7 +365,7 @@ def email_finding_status_changed(finding_id: str, finding_title: str, old_status
 def email_new_comment(finding_id: str, finding_title: str, commenter_name: str, comment_preview: str) -> str:
     """Email when someone comments on a finding"""
     preview = (comment_preview[:150] + "...") if len(comment_preview) > 150 else comment_preview
-    
+
     content = f"""
         <h2 style="margin: 0 0 20px; color: #1a1a2e; font-size: 22px;">New Comment on Finding</h2>
         <p style="margin: 0 0 15px; color: #333; line-height: 1.6;">
@@ -378,7 +377,7 @@ def email_new_comment(finding_id: str, finding_title: str, commenter_name: str, 
             <p style="margin: 10px 0 0; color: #666; font-style: italic;">"{preview}"</p>
         </div>
         <p style="margin: 20px 0 0;">
-            <a href="https://platform.redconoffence.com/app/client/findings" 
+            <a href="https://platform.redconoffence.com/app/client/findings"
                style="display: inline-block; background: #e84855; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600;">
                 Read Comment
             </a>
@@ -400,7 +399,7 @@ def email_client_responded(finding_id: str, finding_title: str, client_name: str
             <p style="margin: 0; color: #555;"><strong>Client:</strong> {client_name}</p>
         </div>
         <p style="margin: 20px 0 0;">
-            <a href="https://platform.redconoffence.com/app/ptaas/findings" 
+            <a href="https://platform.redconoffence.com/app/ptaas/findings"
                style="display: inline-block; background: #e84855; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600;">
                 View Response
             </a>
@@ -417,7 +416,7 @@ def email_welcome_user(user_name: str, user_email: str, role: str, temp_password
         "admin": ("Admin Panel", "/app/admin/dashboard"),
     }
     dashboard_name, dashboard_path = role_info.get(role.lower(), ("Dashboard", "/app/portal"))
-    
+
     content = f"""
         <h2 style="margin: 0 0 20px; color: #1a1a2e; font-size: 22px;">Welcome to REDCON Platform!</h2>
         <p style="margin: 0 0 15px; color: #333; line-height: 1.6;">
@@ -430,7 +429,7 @@ def email_welcome_user(user_name: str, user_email: str, role: str, temp_password
         </div>
         {f'<p style="margin: 15px 0; color: #d32f2f; background: #ffebee; padding: 12px; border-radius: 6px;"><strong>Temporary Password:</strong> {temp_password}<br><small>Please change this after your first login.</small></p>' if temp_password else ''}
         <p style="margin: 20px 0 0;">
-            <a href="https://platform.redconoffence.com{dashboard_path}" 
+            <a href="https://platform.redconoffence.com{dashboard_path}"
                style="display: inline-block; background: #e84855; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600;">
                 Access {dashboard_name}
             </a>
@@ -452,7 +451,7 @@ def email_finding_ready_retest(finding_id: str, finding_title: str, pentest_titl
             <p style="margin: 0; color: #555;"><strong>Pentest:</strong> {pentest_title}</p>
         </div>
         <p style="margin: 20px 0 0;">
-            <a href="https://platform.redconoffence.com/app/ptaas/findings" 
+            <a href="https://platform.redconoffence.com/app/ptaas/findings"
                style="display: inline-block; background: #e84855; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600;">
                 Start Retest
             </a>
@@ -474,7 +473,7 @@ def email_password_reset(user_name: str, reset_url: str) -> str:
         <table cellpadding="0" cellspacing="0" border="0" style="margin: 20px 0;">
             <tr>
                 <td align="center" bgcolor="#e84855" style="border-radius: 6px;">
-                    <a href="{reset_url}" 
+                    <a href="{reset_url}"
                        target="_blank"
                        style="display: inline-block; background: #e84855; color: #ffffff !important; padding: 14px 32px; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 16px; font-family: Arial, sans-serif;">
                         Reset Password
@@ -500,7 +499,7 @@ def email_password_reset(user_name: str, reset_url: str) -> str:
 
 def email_password_reset_confirmation() -> str:
     """Password reset confirmation email"""
-    content = f"""
+    content = """
         <h2 style="margin: 0 0 20px; color: #1a1a2e; font-size: 22px;">Password Reset Successful</h2>
         <p style="margin: 0 0 15px; color: #333; line-height: 1.6;">
             Your password has been successfully reset.
@@ -514,14 +513,14 @@ def email_password_reset_confirmation() -> str:
             You can now sign in to your account using your new password.
         </p>
         <p style="margin: 20px 0;">
-            <a href="https://platform.redconoffence.com/app/portal" 
+            <a href="https://platform.redconoffence.com/app/portal"
                style="display: inline-block; background: #e84855; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600;">
                 Sign In
             </a>
         </p>
         <div style="background: #fff3cd; border-left: 4px solid #f39c12; padding: 15px; margin: 20px 0;">
             <p style="margin: 0; color: #666; font-size: 13px; line-height: 1.6;">
-                <strong>Security Alert:</strong> If you didn't make this change, please contact us immediately at 
+                <strong>Security Alert:</strong> If you didn't make this change, please contact us immediately at
                 <a href="mailto:admin@redconoffence.com" style="color: #e84855;">admin@redconoffence.com</a>
             </p>
         </div>
@@ -532,7 +531,7 @@ def email_password_reset_confirmation() -> str:
 def email_mention_notification(mentioned_user_name: str, finding_title: str, commenter_name: str, comment_preview: str) -> str:
     """Email when user is @mentioned in a comment"""
     preview = (comment_preview[:150] + "...") if len(comment_preview) > 150 else comment_preview
-    
+
     content = f"""
         <h2 style="margin: 0 0 20px; color: #1a1a2e; font-size: 22px;">You Were Mentioned</h2>
         <p style="margin: 0 0 15px; color: #333; line-height: 1.6;">
@@ -542,7 +541,7 @@ def email_mention_notification(mentioned_user_name: str, finding_title: str, com
             <p style="margin: 0; color: #666; font-style: italic;">"{preview}"</p>
         </div>
         <p style="margin: 20px 0 0;">
-            <a href="https://platform.redconoffence.com/app/client/findings" 
+            <a href="https://platform.redconoffence.com/app/client/findings"
                style="display: inline-block; background: #e84855; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600;">
                 View Comment
             </a>
@@ -559,7 +558,7 @@ def email_welcome_user_setup_link(user_name: str, user_email: str, role: str, se
         "admin": ("Admin Panel", "manage the platform"),
     }
     dashboard_name, dashboard_desc = role_info.get(role.lower(), ("Dashboard", "access the platform"))
-    
+
     content = f"""
         <h2 style="margin: 0 0 20px; color: #1a1a2e; font-size: 22px;">Welcome to REDCON Platform!</h2>
         <p style="margin: 0 0 15px; color: #333; line-height: 1.6;">
@@ -576,7 +575,7 @@ def email_welcome_user_setup_link(user_name: str, user_email: str, role: str, se
         <table cellpadding="0" cellspacing="0" border="0" style="margin: 20px 0;">
             <tr>
                 <td align="center" bgcolor="#e84855" style="border-radius: 6px;">
-                    <a href="{setup_url}" 
+                    <a href="{setup_url}"
                        target="_blank"
                        style="display: inline-block; background: #e84855; color: #ffffff !important; padding: 14px 32px; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 16px; font-family: Arial, sans-serif;">
                         Set Up Your Account
@@ -688,7 +687,7 @@ def notify_ready_retest(pentester_emails: List[str], finding_id: str, finding_ti
 
 def notify_welcome_user(user_email: str, user_name: str, role: str, temp_password: Optional[str] = None):
     """Send welcome email to new user"""
-    subject = f"Welcome to REDCON Platform"
+    subject = "Welcome to REDCON Platform"
     html = email_welcome_user(user_name, user_email, role, temp_password)
     return send_email(user_email, subject, html, category="welcome")
 
@@ -697,7 +696,7 @@ def send_password_reset_email(user_email: str, user_name: str, reset_url: str):
     """Send password reset email"""
     subject = "Reset Your Password - REDCON OFFENCE"
     html = email_password_reset(user_name, reset_url)
-    
+
     text = f"""
 Reset Your Password
 
@@ -713,7 +712,7 @@ If you didn't request this reset, you can safely ignore this email.
 ---
 © 2026 REDCON OFFENCE. All rights reserved.
 """
-    
+
     return send_email(user_email, subject, html, text_body=text, category="password_reset", reply_to="admin@redconoffence.com")
 
 
@@ -721,8 +720,8 @@ def send_password_reset_confirmation(user_email: str):
     """Send confirmation after password is reset"""
     subject = "Password Reset Successful - REDCON OFFENCE"
     html = email_password_reset_confirmation()
-    
-    text = f"""
+
+    text = """
 Password Reset Successful
 
 Your password has been successfully reset.
@@ -736,15 +735,15 @@ If you didn't make this change, please contact us immediately at admin@redconoff
 ---
 © 2026 REDCON OFFENCE. All rights reserved.
 """
-    
+
     return send_email(user_email, subject, html, text_body=text, category="password_reset_confirm", reply_to="admin@redconoffence.com")
 
 
 def notify_welcome_user_with_setup_link(user_email: str, user_name: str, role: str, setup_url: str):
     """Send welcome email with secure setup link (no password)"""
-    subject = f"Welcome to REDCON Platform - Set Up Your Account"
+    subject = "Welcome to REDCON Platform - Set Up Your Account"
     html = email_welcome_user_setup_link(user_name, user_email, role, setup_url)
-    
+
     # Plain text version for better deliverability
     text = f"""
 Welcome to REDCON Platform!
@@ -764,5 +763,5 @@ This link will expire in 24 hours and can only be used once.
 © 2026 REDCON OFFENCE. All rights reserved.
 https://platform.redconoffence.com
 """
-    
+
     return send_email(user_email, subject, html, text_body=text, category="welcome_setup", reply_to="admin@redconoffence.com")

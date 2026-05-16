@@ -283,7 +283,7 @@ def init_ptaas_db():
     """Initialize all PTaaS database tables."""
     conn = get_db()
     c = conn.cursor()
-    
+
     # ============================================================
     # COVERAGE CHECKLIST TABLE - Track testing progress
     # ============================================================
@@ -303,7 +303,7 @@ def init_ptaas_db():
             FOREIGN KEY (completed_by) REFERENCES ptaas_users(id)
         )
     ''')
-    
+
     # ============================================================
     # ASSETS TABLE - Software components to be tested
     # ============================================================
@@ -325,7 +325,7 @@ def init_ptaas_db():
             FOREIGN KEY (client_id) REFERENCES ptaas_users(id)
         )
     ''')
-    
+
     # ============================================================
     # USERS TABLE - Extended for PTaaS
     # ============================================================
@@ -342,7 +342,7 @@ def init_ptaas_db():
             country TEXT,
             timezone TEXT DEFAULT 'UTC',
             language TEXT DEFAULT 'en',
-            
+
             -- Pentester specific fields
             bio TEXT,
             skills TEXT,  -- JSON array of skills
@@ -356,34 +356,34 @@ def init_ptaas_db():
             rating REAL DEFAULT 0,
             rating_count INTEGER DEFAULT 0,
             verified INTEGER DEFAULT 0,
-            
+
             -- Client specific fields
             subscription_tier TEXT DEFAULT 'free',  -- free, starter, professional, enterprise
             credits INTEGER DEFAULT 0,
             stripe_customer_id TEXT,
-            
+
             -- Social links
             linkedin TEXT,
             twitter TEXT,
             github TEXT,
             website TEXT,
-            
+
             -- Notifications
             notify_email_updates INTEGER DEFAULT 1,
             notify_new_findings INTEGER DEFAULT 1,
             notify_status_updates INTEGER DEFAULT 1,
             notify_weekly_summary INTEGER DEFAULT 1,
             notify_marketing INTEGER DEFAULT 0,
-            
+
             -- Security
             two_factor_enabled INTEGER DEFAULT 0,
             two_factor_secret TEXT,
             api_token TEXT,
-            
+
             -- Payment
             payment_method TEXT,  -- paypal, bank, crypto
             payment_details TEXT,  -- JSON with payment info
-            
+
             created_at TEXT NOT NULL,
             last_login TEXT,
             is_active INTEGER DEFAULT 1
@@ -403,7 +403,7 @@ def init_ptaas_db():
             FOREIGN KEY (user_id) REFERENCES ptaas_users(id)
         )
     ''')
-    
+
     # Password reset tokens table (for secure password reset flow)
     c.execute('''
         CREATE TABLE IF NOT EXISTS password_reset_tokens (
@@ -419,7 +419,7 @@ def init_ptaas_db():
             FOREIGN KEY (user_id) REFERENCES ptaas_users(id)
         )
     ''')
-    
+
     # Rate limiting table (prevent password reset abuse)
     c.execute('''
         CREATE TABLE IF NOT EXISTS rate_limits (
@@ -431,7 +431,7 @@ def init_ptaas_db():
             UNIQUE(identifier, action)
         )
     ''')
-    
+
     # Back-compat migrations (SQLite doesn't support IF NOT EXISTS for columns).
     # Keep these idempotent.
     try:
@@ -442,7 +442,7 @@ def init_ptaas_db():
     except Exception:
         # Safe to ignore; table may be locked during startup, or column already exists.
         pass
-    
+
     # ============================================================
     # PENTESTS TABLE - Core pentest engagements
     # ============================================================
@@ -452,42 +452,42 @@ def init_ptaas_db():
             pentest_number TEXT UNIQUE NOT NULL,
             title TEXT NOT NULL,
             description TEXT,
-            
+
             -- Client info
             client_id TEXT NOT NULL,
             company_name TEXT NOT NULL,
-            
+
             -- Pentest details
             type TEXT NOT NULL,  -- web, mobile, api, cloud, network, comprehensive
             scope TEXT,  -- Detailed scope description
             targets TEXT,  -- JSON array of target URLs/IPs
             credentials TEXT,  -- JSON with test credentials (encrypted in production)
-            
+
             -- Status & Timeline
             status TEXT NOT NULL DEFAULT 'draft',  -- draft, pending, planned, live, remediation, completed, cancelled
             start_date TEXT,
             end_date TEXT,
             actual_start TEXT,
             actual_end TEXT,
-            
+
             -- Assignment
             lead_pentester_id TEXT,
             max_pentesters INTEGER DEFAULT 3,
-            
+
             -- Pricing
             credits_cost INTEGER DEFAULT 0,
             payout_total REAL DEFAULT 0,
             payout_per_finding REAL DEFAULT 0,
             bonus_critical REAL DEFAULT 500,
             bonus_high REAL DEFAULT 200,
-            
+
             -- Progress
             progress INTEGER DEFAULT 0,
-            
+
             -- Requirements
             required_skills TEXT,  -- JSON array
             compliance TEXT,  -- JSON array (PCI-DSS, HIPAA, SOC2, etc.)
-            
+
             -- Results
             total_findings INTEGER DEFAULT 0,
             critical_count INTEGER DEFAULT 0,
@@ -496,11 +496,11 @@ def init_ptaas_db():
             low_count INTEGER DEFAULT 0,
             info_count INTEGER DEFAULT 0,
             security_score INTEGER,
-            
+
             -- Reports
             executive_report_url TEXT,
             technical_report_url TEXT,
-            
+
             -- Extended request fields
             objectives TEXT,
             technology_stack TEXT,
@@ -512,14 +512,14 @@ def init_ptaas_db():
             client_name TEXT,
             credential_type TEXT DEFAULT 'none',
             attachments TEXT,
-            
+
             -- Metadata
             created_at TEXT NOT NULL,
             updated_at TEXT NOT NULL,
             created_by TEXT
         )
     ''')
-    
+
     # ============================================================
     # PENTEST_PENTESTERS - Junction table for pentest assignments
     # ============================================================
@@ -540,7 +540,7 @@ def init_ptaas_db():
             UNIQUE(pentest_id, pentester_id)
         )
     ''')
-    
+
     # ============================================================
     # POSTINGS TABLE - Available pentests for sign-up
     # ============================================================
@@ -566,7 +566,7 @@ def init_ptaas_db():
             FOREIGN KEY (pentest_id) REFERENCES pentests(id)
         )
     ''')
-    
+
     # ============================================================
     # POSTING_APPLICATIONS - Applications to postings
     # ============================================================
@@ -585,7 +585,7 @@ def init_ptaas_db():
             UNIQUE(posting_id, pentester_id)
         )
     ''')
-    
+
     # ============================================================
     # FINDINGS TABLE - Vulnerability findings
     # ============================================================
@@ -594,7 +594,7 @@ def init_ptaas_db():
             id TEXT PRIMARY KEY,
             pentest_id TEXT NOT NULL,
             pentester_id TEXT NOT NULL,
-            
+
             -- Finding details
             title TEXT NOT NULL,
             description TEXT NOT NULL,
@@ -602,7 +602,7 @@ def init_ptaas_db():
             cvss_score REAL,
             cvss_vector TEXT,
             category TEXT,  -- injection, xss, access_control, etc.
-            
+
             -- Technical details
             affected_url TEXT,
             affected_parameter TEXT,
@@ -610,16 +610,16 @@ def init_ptaas_db():
             steps_to_reproduce TEXT,
             impact TEXT,
             remediation TEXT,
-            
+
             -- Evidence
             screenshots TEXT,  -- JSON array of URLs
             attachments TEXT,  -- JSON array of file URLs
-            
+
             -- Status workflow
             status TEXT DEFAULT 'new',  -- new, triaged, accepted, rejected, duplicate, fixed, verified, wont_fix
             triaged_at TEXT,
             triaged_by TEXT,
-            
+
             -- Client response
             client_response TEXT,
             client_priority TEXT,
@@ -627,17 +627,17 @@ def init_ptaas_db():
             fixed_at TEXT,
             verified_at TEXT,
             verified_by TEXT,
-            
+
             -- Payout
             payout_amount REAL DEFAULT 0,
             payout_status TEXT DEFAULT 'pending',  -- pending, approved, paid
             paid_at TEXT,
-            
+
             -- References
             cwe_id TEXT,
             cve_id TEXT,
             reference_urls TEXT,  -- JSON array of URLs
-            
+
             -- Metadata
             created_at TEXT NOT NULL,
             updated_at TEXT NOT NULL,
@@ -645,7 +645,7 @@ def init_ptaas_db():
             FOREIGN KEY (pentester_id) REFERENCES ptaas_users(id)
         )
     ''')
-    
+
     # ============================================================
     # FINDING_COMMENTS - Comments on findings
     # ============================================================
@@ -661,7 +661,7 @@ def init_ptaas_db():
             FOREIGN KEY (user_id) REFERENCES ptaas_users(id)
         )
     ''')
-    
+
     # ============================================================
     # ACTIVITY TABLE - Activity feed
     # ============================================================
@@ -671,21 +671,21 @@ def init_ptaas_db():
             user_id TEXT,
             pentest_id TEXT,
             finding_id TEXT,
-            
+
             type TEXT NOT NULL,  -- finding_submitted, finding_accepted, pentest_started, comment_added, etc.
             title TEXT NOT NULL,
             description TEXT,
             icon TEXT,
-            
+
             is_read INTEGER DEFAULT 0,
             created_at TEXT NOT NULL,
-            
+
             FOREIGN KEY (user_id) REFERENCES ptaas_users(id),
             FOREIGN KEY (pentest_id) REFERENCES pentests(id),
             FOREIGN KEY (finding_id) REFERENCES ptaas_findings(id)
         )
     ''')
-    
+
     # ============================================================
     # NOTIFICATIONS TABLE
     # ============================================================
@@ -702,7 +702,7 @@ def init_ptaas_db():
             FOREIGN KEY (user_id) REFERENCES ptaas_users(id)
         )
     ''')
-    
+
     # ============================================================
     # FEEDBACK TABLE - Client feedback on pentesters
     # ============================================================
@@ -712,28 +712,28 @@ def init_ptaas_db():
             pentest_id TEXT NOT NULL,
             pentester_id TEXT NOT NULL,
             client_id TEXT NOT NULL,
-            
+
             -- Ratings (1-5)
             overall_rating INTEGER,
             communication_rating INTEGER,
             quality_rating INTEGER,
             timeliness_rating INTEGER,
             professionalism_rating INTEGER,
-            
+
             -- Written feedback
             comment TEXT,
             strengths TEXT,  -- JSON array
             improvements TEXT,  -- JSON array
-            
+
             is_public INTEGER DEFAULT 1,
             created_at TEXT NOT NULL,
-            
+
             FOREIGN KEY (pentest_id) REFERENCES pentests(id),
             FOREIGN KEY (pentester_id) REFERENCES ptaas_users(id),
             FOREIGN KEY (client_id) REFERENCES ptaas_users(id)
         )
     ''')
-    
+
     # ============================================================
     # REPORTS TABLE - Generated reports
     # ============================================================
@@ -745,22 +745,22 @@ def init_ptaas_db():
             title TEXT NOT NULL,
             file_url TEXT,
             file_size INTEGER,
-            
+
             -- Stats at time of generation
             findings_count INTEGER,
             critical_count INTEGER,
             high_count INTEGER,
             medium_count INTEGER,
             low_count INTEGER,
-            
+
             generated_at TEXT NOT NULL,
             generated_by TEXT,
             downloads INTEGER DEFAULT 0,
-            
+
             FOREIGN KEY (pentest_id) REFERENCES pentests(id)
         )
     ''')
-    
+
     # ============================================================
     # PAYMENTS TABLE - Payment history
     # ============================================================
@@ -770,23 +770,23 @@ def init_ptaas_db():
             user_id TEXT NOT NULL,
             pentest_id TEXT,
             finding_id TEXT,
-            
+
             type TEXT NOT NULL,  -- payout, bonus, credit_purchase
             amount REAL NOT NULL,
             currency TEXT DEFAULT 'USD',
             status TEXT DEFAULT 'pending',  -- pending, processing, completed, failed
-            
+
             payment_method TEXT,
             transaction_id TEXT,
-            
+
             description TEXT,
             created_at TEXT NOT NULL,
             completed_at TEXT,
-            
+
             FOREIGN KEY (user_id) REFERENCES ptaas_users(id)
         )
     ''')
-    
+
     # ============================================================
     # SESSIONS TABLE
     # ============================================================
@@ -804,7 +804,7 @@ def init_ptaas_db():
             FOREIGN KEY (user_id) REFERENCES ptaas_users(id)
         )
     ''')
-    
+
     # ============================================================
     # Create indexes for performance
     # ============================================================
@@ -841,7 +841,7 @@ def init_ptaas_db():
         )
     ''')
     c.execute('CREATE INDEX IF NOT EXISTS idx_audit_user ON audit_log(user_id)')
-    
+
     conn.commit()
     conn.close()
     print("[PTaaS DB] Database initialized successfully")
@@ -1088,18 +1088,18 @@ def create_user(email: str, password: str, name: str, role: str = 'pentester', *
     """Create a new user."""
     conn = get_db()
     c = conn.cursor()
-    
+
     user_id = str(uuid.uuid4())
     now = datetime.now().isoformat()
-    
+
     try:
         c.execute('''
             INSERT INTO ptaas_users (id, email, password_hash, name, role, company, created_at)
             VALUES (?, ?, ?, ?, ?, ?, ?)
         ''', (user_id, email, hash_password(password), name, role, kwargs.get('company', ''), now))
-        
+
         conn.commit()
-        
+
         return get_user_by_id(user_id)
     except sqlite3.IntegrityError:
         return None
@@ -1111,21 +1111,21 @@ def authenticate_user(email: str, password: str) -> Optional[Dict]:
     """Authenticate a user using secure password verification."""
     conn = get_db()
     c = conn.cursor()
-    
+
     # First get user by email only
     c.execute('SELECT * FROM ptaas_users WHERE email = ? AND is_active = 1', (email,))
     user = c.fetchone()
-    
+
     if user:
         # Verify password using the secure verify function
         if verify_password(password, user['password_hash']):
             # Update last login
-            c.execute('UPDATE ptaas_users SET last_login = ? WHERE id = ?', 
+            c.execute('UPDATE ptaas_users SET last_login = ? WHERE id = ?',
                       (datetime.now().isoformat(), user['id']))
             conn.commit()
             conn.close()
             return dict_from_row(user)
-    
+
     conn.close()
     return None
 
@@ -1154,18 +1154,18 @@ def create_user_without_password(email: str, name: str, role: str = 'client', **
     """Create a user without password (for token-based setup)."""
     conn = get_db()
     c = conn.cursor()
-    
+
     user_id = str(uuid.uuid4())
     now = datetime.now().isoformat()
     # Use a placeholder password hash that cannot be used for login
     placeholder_hash = "PENDING_SETUP_" + str(uuid.uuid4())
-    
+
     try:
         c.execute('''
             INSERT INTO ptaas_users (id, email, password_hash, name, role, company, created_at, is_active)
             VALUES (?, ?, ?, ?, ?, ?, ?, 1)
         ''', (user_id, email, placeholder_hash, name, role, kwargs.get('company', ''), now))
-        
+
         conn.commit()
         return get_user_by_id(user_id)
     except sqlite3.IntegrityError:
@@ -1178,12 +1178,12 @@ def create_setup_token(user_id: str) -> Optional[str]:
     """Generate a setup token for user account setup."""
     conn = get_db()
     c = conn.cursor()
-    
+
     token = str(uuid.uuid4())
     token_id = str(uuid.uuid4())
     now = datetime.now().isoformat()
     expires = (datetime.now() + timedelta(hours=24)).isoformat()
-    
+
     try:
         c.execute('''
             INSERT INTO user_setup_tokens (id, user_id, token, created_at, expires_at, used)
@@ -1201,30 +1201,30 @@ def validate_setup_token(token: str) -> Optional[Dict]:
     """Validate a setup token and return user info if valid."""
     conn = get_db()
     c = conn.cursor()
-    
+
     c.execute('''
-        SELECT st.*, u.email, u.name, u.role 
+        SELECT st.*, u.email, u.name, u.role
         FROM user_setup_tokens st
         JOIN ptaas_users u ON u.id = st.user_id
         WHERE st.token = ? AND st.used = 0
     ''', (token,))
-    
+
     row = c.fetchone()
     conn.close()
-    
+
     if not row:
         return None
-    
+
     token_data = dict(row)
-    
+
     # Check if expired
     try:
         expires = datetime.fromisoformat(token_data['expires_at'])
         if datetime.now() > expires:
             return None
-    except:
+    except Exception:
         return None
-    
+
     return token_data
 
 
@@ -1232,31 +1232,31 @@ def complete_setup_token(token: str, new_password: str) -> bool:
     """Mark token as used and set user's password."""
     conn = get_db()
     c = conn.cursor()
-    
+
     # Validate token first
     token_data = validate_setup_token(token)
     if not token_data:
         conn.close()
         return False
-    
+
     user_id = token_data['user_id']
     now = datetime.now().isoformat()
-    
+
     try:
         # Update password
         c.execute('''
-            UPDATE ptaas_users 
-            SET password_hash = ?, is_active = 1 
+            UPDATE ptaas_users
+            SET password_hash = ?, is_active = 1
             WHERE id = ?
         ''', (hash_password(new_password), user_id))
-        
+
         # Mark token as used
         c.execute('''
-            UPDATE user_setup_tokens 
-            SET used = 1, used_at = ? 
+            UPDATE user_setup_tokens
+            SET used = 1, used_at = ?
             WHERE token = ?
         ''', (now, token))
-        
+
         conn.commit()
         return True
     except Exception:
@@ -1269,22 +1269,22 @@ def create_password_reset_token(email: str, ip_address: str = "", user_agent: st
     """Generate a password reset token. Returns (token, user) or None."""
     conn = get_db()
     c = conn.cursor()
-    
+
     # Get user by email (case-insensitive)
     c.execute('SELECT * FROM ptaas_users WHERE LOWER(email) = LOWER(?)', (email,))
     user = c.fetchone()
-    
+
     if not user:
         conn.close()
         return None
-    
+
     user_dict = dict(user)
     token = str(uuid.uuid4())
     token_id = str(uuid.uuid4())
     now = datetime.now().isoformat()
     # Password reset tokens expire in 1 hour (more secure than 24h)
     expires = (datetime.now() + timedelta(hours=1)).isoformat()
-    
+
     try:
         c.execute('''
             INSERT INTO password_reset_tokens (id, user_id, token, created_at, expires_at, used, ip_address, user_agent)
@@ -1302,30 +1302,30 @@ def validate_password_reset_token(token: str) -> Optional[Dict]:
     """Validate a password reset token and return user info if valid."""
     conn = get_db()
     c = conn.cursor()
-    
+
     c.execute('''
-        SELECT rt.*, u.email, u.name, u.role 
+        SELECT rt.*, u.email, u.name, u.role
         FROM password_reset_tokens rt
         JOIN ptaas_users u ON u.id = rt.user_id
         WHERE rt.token = ? AND rt.used = 0 AND u.is_active = 1
     ''', (token,))
-    
+
     row = c.fetchone()
     conn.close()
-    
+
     if not row:
         return None
-    
+
     token_data = dict(row)
-    
+
     # Check if expired
     try:
         expires = datetime.fromisoformat(token_data['expires_at'])
         if datetime.now() > expires:
             return None
-    except:
+    except Exception:
         return None
-    
+
     return token_data
 
 
@@ -1333,39 +1333,39 @@ def complete_password_reset(token: str, new_password: str) -> tuple[bool, Option
     """Reset password using token. Returns (success, user_email)."""
     conn = get_db()
     c = conn.cursor()
-    
+
     # Validate token first
     token_data = validate_password_reset_token(token)
     if not token_data:
         conn.close()
         return (False, None)
-    
+
     user_id = token_data['user_id']
     user_email = token_data['email']
     now = datetime.now().isoformat()
-    
+
     try:
         # Update password
         c.execute('''
-            UPDATE ptaas_users 
-            SET password_hash = ? 
+            UPDATE ptaas_users
+            SET password_hash = ?
             WHERE id = ?
         ''', (hash_password(new_password), user_id))
-        
+
         # Mark token as used
         c.execute('''
-            UPDATE password_reset_tokens 
-            SET used = 1, used_at = ? 
+            UPDATE password_reset_tokens
+            SET used = 1, used_at = ?
             WHERE token = ?
         ''', (now, token))
-        
+
         # Invalidate any other pending reset tokens for this user (security)
         c.execute('''
-            UPDATE password_reset_tokens 
-            SET used = 1, used_at = ? 
+            UPDATE password_reset_tokens
+            SET used = 1, used_at = ?
             WHERE user_id = ? AND token != ? AND used = 0
         ''', (now, user_id, token))
-        
+
         conn.commit()
         return (True, user_email)
     except Exception:
@@ -1378,17 +1378,17 @@ def check_rate_limit(identifier: str, action: str, max_attempts: int = 3, window
     """Check if action is rate-limited. Returns True if allowed, False if blocked."""
     conn = get_db()
     c = conn.cursor()
-    
+
     now = datetime.now()
     window_start = (now - timedelta(minutes=window_minutes)).isoformat()
-    
+
     c.execute('''
-        SELECT attempts, window_start FROM rate_limits 
+        SELECT attempts, window_start FROM rate_limits
         WHERE identifier = ? AND action = ?
     ''', (identifier, action))
-    
+
     row = c.fetchone()
-    
+
     if not row:
         # First attempt - create record
         c.execute('''
@@ -1398,30 +1398,30 @@ def check_rate_limit(identifier: str, action: str, max_attempts: int = 3, window
         conn.commit()
         conn.close()
         return True
-    
+
     record = dict(row)
     record_start = datetime.fromisoformat(record['window_start'])
-    
+
     # Check if window expired - reset counter
     if record_start < datetime.fromisoformat(window_start):
         c.execute('''
-            UPDATE rate_limits 
-            SET attempts = 1, window_start = ? 
+            UPDATE rate_limits
+            SET attempts = 1, window_start = ?
             WHERE identifier = ? AND action = ?
         ''', (now.isoformat(), identifier, action))
         conn.commit()
         conn.close()
         return True
-    
+
     # Within window - check attempts
     if record['attempts'] >= max_attempts:
         conn.close()
         return False  # Blocked!
-    
+
     # Increment attempts
     c.execute('''
-        UPDATE rate_limits 
-        SET attempts = attempts + 1 
+        UPDATE rate_limits
+        SET attempts = attempts + 1
         WHERE identifier = ? AND action = ?
     ''', (identifier, action))
     conn.commit()
@@ -1433,26 +1433,26 @@ def update_user(user_id: str, **kwargs) -> bool:
     """Update user fields."""
     conn = get_db()
     c = conn.cursor()
-    
+
     allowed_fields = ['name', 'company', 'avatar', 'phone', 'country', 'timezone', 'language',
                      'bio', 'skills', 'certifications', 'halls_of_fame',
                      'hourly_rate', 'is_available', 'auto_accept_invites',
                      'linkedin', 'twitter', 'github', 'website',
-                     'notify_email_updates', 'notify_new_findings', 'notify_status_updates', 
+                     'notify_email_updates', 'notify_new_findings', 'notify_status_updates',
                      'notify_weekly_summary', 'notify_marketing',
                      'payment_method', 'payment_details',
                      'last_login', 'is_active']
-    
+
     updates = []
     values = []
     for key, value in kwargs.items():
         if key in allowed_fields:
             updates.append(f'{key} = ?')
             values.append(value)
-    
+
     if not updates:
         return False
-    
+
     values.append(user_id)
     c.execute(f'UPDATE ptaas_users SET {", ".join(updates)} WHERE id = ?', values)
     conn.commit()
@@ -1489,11 +1489,11 @@ def create_pentest(client_id: str, title: str, type: str, **kwargs) -> Dict:
 
     pentest_id = str(uuid.uuid4())[:8]
     now = datetime.now().isoformat()
-    
+
     # Get client info - handle None case
     client = get_user_by_id(client_id)
     company_name = kwargs.get('company_name') or (client.get('company') if client else None) or 'Unknown'
-    
+
     # Keep existing internal number (back-compat)
     c.execute('SELECT COUNT(*) FROM pentests')
     count = c.fetchone()[0]
@@ -1511,7 +1511,7 @@ def create_pentest(client_id: str, title: str, type: str, **kwargs) -> Dict:
             except Exception:
                 pass
     public_id = f"#PT_{(max_n + 1):02d}"
-    
+
     c.execute('''
         INSERT INTO pentests (id, pentest_number, public_id, title, description, client_id, company_name,
                              type, scope, targets, status, start_date, end_date,
@@ -1533,10 +1533,10 @@ def create_pentest(client_id: str, title: str, type: str, **kwargs) -> Dict:
         kwargs.get('credential_type', 'none'), kwargs.get('credentials', ''),
         kwargs.get('attachments', '[]')
     ))
-    
+
     conn.commit()
     conn.close()
-    
+
     return get_pentest_by_id(pentest_id)
 
 
@@ -1554,13 +1554,13 @@ def get_pentests_for_client(client_id: str, status: str = None) -> List[Dict]:
     """Get all pentests for a client."""
     conn = get_db()
     c = conn.cursor()
-    
+
     if status and status != 'all':
-        c.execute('SELECT * FROM pentests WHERE client_id = ? AND status = ? ORDER BY created_at DESC', 
+        c.execute('SELECT * FROM pentests WHERE client_id = ? AND status = ? ORDER BY created_at DESC',
                   (client_id, status))
     else:
         c.execute('SELECT * FROM pentests WHERE client_id = ? ORDER BY created_at DESC', (client_id,))
-    
+
     pentests = c.fetchall()
     conn.close()
     return [dict_from_row(p) for p in pentests]
@@ -1570,20 +1570,20 @@ def get_pentests_for_pentester(pentester_id: str, status: str = None) -> List[Di
     """Get all pentests assigned to a pentester."""
     conn = get_db()
     c = conn.cursor()
-    
+
     query = '''
         SELECT p.*, pp.role as assignment_role, pp.status as assignment_status
         FROM pentests p
         JOIN pentest_pentesters pp ON p.id = pp.pentest_id
         WHERE pp.pentester_id = ? AND pp.status = 'accepted'
     '''
-    
+
     if status and status != 'all':
         query += ' AND p.status = ?'
         c.execute(query + ' ORDER BY p.created_at DESC', (pentester_id, status))
     else:
         c.execute(query + ' ORDER BY p.created_at DESC', (pentester_id,))
-    
+
     pentests = c.fetchall()
     conn.close()
     return [dict_from_row(p) for p in pentests]
@@ -1593,18 +1593,18 @@ def update_pentest(pentest_id: str, **kwargs) -> bool:
     """Update pentest fields."""
     conn = get_db()
     c = conn.cursor()
-    
-    allowed_fields = ['title', 'description', 'scope', 'targets', 'status', 
+
+    allowed_fields = ['title', 'description', 'scope', 'targets', 'status',
                      'start_date', 'end_date', 'progress', 'payout_total', 'attachments']
-    
+
     updates = ['updated_at = ?']
     values = [datetime.now().isoformat()]
-    
+
     for key, value in kwargs.items():
         if key in allowed_fields:
             updates.append(f'{key} = ?')
             values.append(value)
-    
+
     values.append(pentest_id)
     c.execute(f'UPDATE pentests SET {", ".join(updates)} WHERE id = ?', values)
     conn.commit()
@@ -1616,7 +1616,7 @@ def archive_pentest(pentest_id: str) -> bool:
     """Archive a pentest (soft delete by changing status to 'archived')."""
     conn = get_db()
     c = conn.cursor()
-    
+
     try:
         c.execute('''
             UPDATE pentests SET status = 'archived', updated_at = ? WHERE id = ?
@@ -1634,7 +1634,7 @@ def delete_pentest(pentest_id: str) -> bool:
     """Permanently delete a pentest and all related data."""
     conn = get_db()
     c = conn.cursor()
-    
+
     try:
         # Delete related records first
         c.execute('DELETE FROM pentest_pentesters WHERE pentest_id = ?', (pentest_id,))
@@ -1643,10 +1643,10 @@ def delete_pentest(pentest_id: str) -> bool:
         c.execute('DELETE FROM feedback WHERE pentest_id = ?', (pentest_id,))
         c.execute('DELETE FROM reports WHERE pentest_id = ?', (pentest_id,))
         c.execute('DELETE FROM payments WHERE pentest_id = ?', (pentest_id,))
-        
+
         # Delete the pentest
         c.execute('DELETE FROM pentests WHERE id = ?', (pentest_id,))
-        
+
         conn.commit()
         return True
     except Exception as e:
@@ -1661,24 +1661,24 @@ def assign_pentester(pentest_id: str, pentester_id: str, role: str = 'tester') -
     """Assign a pentester to a pentest. When admin assigns, it's auto-accepted."""
     conn = get_db()
     c = conn.cursor()
-    
+
     assignment_id = str(uuid.uuid4())
     now = datetime.now().isoformat()
-    
+
     try:
         # When admin assigns, set status to 'accepted' directly (not just invited)
         c.execute('''
             INSERT INTO pentest_pentesters (id, pentest_id, pentester_id, role, status, invited_at, accepted_at)
             VALUES (?, ?, ?, ?, 'accepted', ?, ?)
         ''', (assignment_id, pentest_id, pentester_id, role, now, now))
-        
+
         conn.commit()
         conn.close()
-        
+
         # Create notification after closing connection to avoid lock
-        create_notification(pentester_id, 'pentest_assigned', 'New Pentest Assignment', 
-                          f'You have been assigned to a pentest', f'/ptaas/pentest/{pentest_id}')
-        
+        create_notification(pentester_id, 'pentest_assigned', 'New Pentest Assignment',
+                          'You have been assigned to a pentest', f'/ptaas/pentest/{pentest_id}')
+
         return True
     except sqlite3.IntegrityError:
         conn.close()
@@ -1689,12 +1689,12 @@ def accept_pentest_invite(pentest_id: str, pentester_id: str) -> bool:
     """Accept a pentest invitation."""
     conn = get_db()
     c = conn.cursor()
-    
+
     c.execute('''
         UPDATE pentest_pentesters SET status = 'accepted', accepted_at = ?
         WHERE pentest_id = ? AND pentester_id = ?
     ''', (datetime.now().isoformat(), pentest_id, pentester_id))
-    
+
     conn.commit()
     conn.close()
     return True
@@ -1708,10 +1708,10 @@ def create_posting(pentest_id: str, **kwargs) -> Dict:
     """Create a posting for a pentest."""
     conn = get_db()
     c = conn.cursor()
-    
+
     posting_id = str(uuid.uuid4())[:8]
     pentest = get_pentest_by_id(pentest_id)
-    
+
     c.execute('''
         INSERT INTO postings (id, pentest_id, title, company, description, type, payout,
                              duration, effort_hours, tags, required_skills, max_pentesters,
@@ -1725,10 +1725,10 @@ def create_posting(pentest_id: str, **kwargs) -> Dict:
         kwargs.get('tags', '[]'), kwargs.get('required_skills', pentest.get('required_skills', '[]')),
         kwargs.get('max_pentesters', 3), datetime.now().isoformat()
     ))
-    
+
     conn.commit()
     conn.close()
-    
+
     return get_posting_by_id(posting_id)
 
 
@@ -1756,15 +1756,15 @@ def apply_to_posting(posting_id: str, pentester_id: str, cover_letter: str = '')
     """Apply to a posting."""
     conn = get_db()
     c = conn.cursor()
-    
+
     app_id = str(uuid.uuid4())
-    
+
     try:
         c.execute('''
             INSERT INTO posting_applications (id, posting_id, pentester_id, cover_letter, applied_at)
             VALUES (?, ?, ?, ?, ?)
         ''', (app_id, posting_id, pentester_id, cover_letter, datetime.now().isoformat()))
-        
+
         conn.commit()
         return True
     except sqlite3.IntegrityError:
@@ -1777,13 +1777,13 @@ def apply_to_posting(posting_id: str, pentester_id: str, cover_letter: str = '')
 # FINDING OPERATIONS
 # ============================================================
 
-def create_finding(pentest_id: str, pentester_id: str, title: str, description: str, 
+def create_finding(pentest_id: str, pentester_id: str, title: str, description: str,
                    severity: str, **kwargs) -> Dict:
     """Create a new finding."""
     ensure_public_ids()
     conn = get_db()
     c = conn.cursor()
-    
+
     finding_id = 'F' + str(uuid.uuid4())[:6].upper()
     # Always store timestamps in UTC with timezone info to avoid client-side TZ parsing bugs.
     now = datetime.now(timezone.utc).isoformat()
@@ -1822,7 +1822,7 @@ def create_finding(pentest_id: str, pentester_id: str, title: str, description: 
             except Exception:
                 pass
     finding_public_id = f"{pentest_public_id}_{(max_f + 1):02d}"
-    
+
     c.execute('''
         INSERT INTO ptaas_findings (id, public_id, pentest_id, pentester_id, title, description, severity,
                                    cvss_score, cvss_vector, category, affected_url, affected_parameter,
@@ -1839,19 +1839,19 @@ def create_finding(pentest_id: str, pentester_id: str, title: str, description: 
         kwargs.get('attachments', '[]'),
         kwargs.get('cwe_id'), kwargs.get('reference_urls', '[]'), now, now
     ))
-    
+
     # Update pentester stats in same connection
-    c.execute('UPDATE ptaas_users SET findings_submitted = findings_submitted + 1 WHERE id = ?', 
+    c.execute('UPDATE ptaas_users SET findings_submitted = findings_submitted + 1 WHERE id = ?',
               (pentester_id,))
-    
+
     conn.commit()
     conn.close()
-    
+
     # Call nested functions AFTER closing connection to avoid locks
     update_pentest_finding_counts(pentest_id)
     create_activity(pentester_id, 'finding_submitted', f'Submitted: {title}',
                    f'{severity} severity finding', pentest_id=pentest_id, finding_id=finding_id)
-    
+
     return get_finding_by_id(finding_id)
 
 
@@ -1953,21 +1953,21 @@ def get_findings_for_pentester(pentester_id: str, severity: str = None, status: 
     """Get all findings by a pentester."""
     conn = get_db()
     c = conn.cursor()
-    
+
     query = 'SELECT f.*, p.title as pentest_title FROM ptaas_findings f JOIN pentests p ON f.pentest_id = p.id WHERE f.pentester_id = ?'
     params = [pentester_id]
-    
+
     if severity and severity != 'all':
         query += ' AND f.severity = ?'
         params.append(severity)
-    
+
     if status and status != 'all':
         query += ' AND f.status = ?'
         params.append(status)
-    
+
     query += ' ORDER BY f.created_at DESC'
     c.execute(query, params)
-    
+
     findings = c.fetchall()
     conn.close()
     return [dict_from_row(f) for f in findings]
@@ -1977,12 +1977,12 @@ def update_finding_status(finding_id: str, status: str, user_id: str = None, **k
     """Update finding status."""
     conn = get_db()
     c = conn.cursor()
-    
+
     now = datetime.now().isoformat()
-    
+
     updates = ['status = ?', 'updated_at = ?']
     values = [status, now]
-    
+
     if status == 'triaged':
         updates.extend(['triaged_at = ?', 'triaged_by = ?'])
         values.extend([now, user_id])
@@ -1992,29 +1992,29 @@ def update_finding_status(finding_id: str, status: str, user_id: str = None, **k
     elif status == 'verified':
         updates.extend(['verified_at = ?', 'verified_by = ?'])
         values.extend([now, user_id])
-    
+
     if 'client_response' in kwargs:
         updates.append('client_response = ?')
         values.append(kwargs['client_response'])
-    
+
     values.append(finding_id)
     c.execute(f'UPDATE ptaas_findings SET {", ".join(updates)} WHERE id = ?', values)
-    
+
     # Get finding info for activity (using same connection to avoid lock)
     c.execute('SELECT title, pentest_id FROM ptaas_findings WHERE id = ?', (finding_id,))
     finding_row = c.fetchone()
-    
+
     # Commit and close before calling other functions that open connections
     conn.commit()
     conn.close()
-    
+
     # Now create activity (after connection is closed)
     if finding_row:
         finding_title = finding_row[0] if finding_row else 'Unknown'
         pentest_id = finding_row[1] if finding_row else None
         create_activity(user_id, f'finding_{status}', f'Finding {status}: {finding_title}',
                        f'Status changed to {status}', pentest_id=pentest_id, finding_id=finding_id)
-    
+
     return True
 
 
@@ -2022,9 +2022,9 @@ def update_pentest_finding_counts(pentest_id: str):
     """Update finding counts for a pentest."""
     conn = get_db()
     c = conn.cursor()
-    
+
     c.execute('''
-        SELECT 
+        SELECT
             COUNT(*) as total,
             SUM(CASE WHEN severity = 'critical' THEN 1 ELSE 0 END) as critical,
             SUM(CASE WHEN severity = 'high' THEN 1 ELSE 0 END) as high,
@@ -2033,16 +2033,16 @@ def update_pentest_finding_counts(pentest_id: str):
             SUM(CASE WHEN severity = 'info' THEN 1 ELSE 0 END) as info
         FROM ptaas_findings WHERE pentest_id = ?
     ''', (pentest_id,))
-    
+
     counts = c.fetchone()
-    
+
     c.execute('''
         UPDATE pentests SET total_findings = ?, critical_count = ?, high_count = ?,
                            medium_count = ?, low_count = ?, info_count = ?, updated_at = ?
         WHERE id = ?
     ''', (counts['total'], counts['critical'], counts['high'], counts['medium'],
           counts['low'], counts['info'], datetime.now().isoformat(), pentest_id))
-    
+
     conn.commit()
     conn.close()
 
@@ -2056,9 +2056,9 @@ def create_activity(user_id: str, type: str, title: str, description: str = '',
     """Create an activity entry."""
     conn = get_db()
     c = conn.cursor()
-    
+
     activity_id = str(uuid.uuid4())
-    
+
     icons = {
         'finding_submitted': '🔍',
         'finding_accepted': '✅',
@@ -2071,16 +2071,16 @@ def create_activity(user_id: str, type: str, title: str, description: str = '',
         'comment_added': '💬',
         'payout_received': '💰'
     }
-    
+
     c.execute('''
         INSERT INTO activity (id, user_id, pentest_id, finding_id, type, title, description, icon, created_at)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     ''', (activity_id, user_id, pentest_id, finding_id, type, title, description,
           icons.get(type, '📌'), datetime.now().isoformat()))
-    
+
     conn.commit()
     conn.close()
-    
+
     return activity_id
 
 
@@ -2088,14 +2088,14 @@ def get_activity_for_user(user_id: str, limit: int = 50) -> List[Dict]:
     """Get activity feed for a user."""
     conn = get_db()
     c = conn.cursor()
-    
+
     c.execute('''
-        SELECT * FROM activity 
-        WHERE user_id = ? 
-        ORDER BY created_at DESC 
+        SELECT * FROM activity
+        WHERE user_id = ?
+        ORDER BY created_at DESC
         LIMIT ?
     ''', (user_id, limit))
-    
+
     activities = c.fetchall()
     conn.close()
     return [dict_from_row(a) for a in activities]
@@ -2105,17 +2105,17 @@ def create_notification(user_id: str, type: str, title: str, message: str = '', 
     """Create a notification."""
     conn = get_db()
     c = conn.cursor()
-    
+
     notif_id = str(uuid.uuid4())
-    
+
     c.execute('''
         INSERT INTO notifications (id, user_id, type, title, message, link, created_at)
         VALUES (?, ?, ?, ?, ?, ?, ?)
     ''', (notif_id, user_id, type, title, message, link, datetime.now(timezone.utc).isoformat()))
-    
+
     conn.commit()
     conn.close()
-    
+
     return notif_id
 
 
@@ -2123,12 +2123,12 @@ def get_notifications(user_id: str, unread_only: bool = False) -> List[Dict]:
     """Get notifications for a user."""
     conn = get_db()
     c = conn.cursor()
-    
+
     query = 'SELECT * FROM notifications WHERE user_id = ?'
     if unread_only:
         query += ' AND is_read = 0'
     query += ' ORDER BY created_at DESC LIMIT 50'
-    
+
     c.execute(query, (user_id,))
     notifications = c.fetchall()
     conn.close()
@@ -2159,14 +2159,14 @@ def mark_all_notifications_read(user_id: str) -> bool:
 # FEEDBACK OPERATIONS
 # ============================================================
 
-def create_feedback(pentest_id: str, pentester_id: str, client_id: str, 
+def create_feedback(pentest_id: str, pentester_id: str, client_id: str,
                    overall_rating: int, **kwargs) -> Dict:
     """Create feedback for a pentester."""
     conn = get_db()
     c = conn.cursor()
-    
+
     feedback_id = str(uuid.uuid4())
-    
+
     c.execute('''
         INSERT INTO feedback (id, pentest_id, pentester_id, client_id, overall_rating,
                              communication_rating, quality_rating, timeliness_rating,
@@ -2179,20 +2179,20 @@ def create_feedback(pentest_id: str, pentester_id: str, client_id: str,
         kwargs.get('comment'), kwargs.get('strengths', '[]'), kwargs.get('improvements', '[]'),
         datetime.now().isoformat()
     ))
-    
+
     # Update pentester rating
     c.execute('''
-        SELECT AVG(overall_rating) as avg_rating, COUNT(*) as count 
+        SELECT AVG(overall_rating) as avg_rating, COUNT(*) as count
         FROM feedback WHERE pentester_id = ?
     ''', (pentester_id,))
     result = c.fetchone()
-    
+
     c.execute('UPDATE ptaas_users SET rating = ?, rating_count = ? WHERE id = ?',
               (result['avg_rating'], result['count'], pentester_id))
-    
+
     conn.commit()
     conn.close()
-    
+
     return get_feedback_by_id(feedback_id)
 
 
@@ -2227,12 +2227,12 @@ def get_feedback_for_pentester(pentester_id: str) -> List[Dict]:
 # REPORT OPERATIONS
 # ============================================================
 
-def create_report(pentest_id: str, type: str, title: str, file_url: str = '', 
+def create_report(pentest_id: str, type: str, title: str, file_url: str = '',
                  generated_by: str = None) -> Dict:
     """Create a report record."""
     conn = get_db()
     c = conn.cursor()
-    
+
     report_id = str(uuid.uuid4())
     pentest = get_pentest_by_id(pentest_id)
 
@@ -2267,10 +2267,10 @@ def create_report(pentest_id: str, type: str, title: str, file_url: str = '',
             generated_by,
         ),
     )
-    
+
     conn.commit()
     conn.close()
-    
+
     return get_report_by_id(report_id)
 
 
@@ -2333,11 +2333,11 @@ def create_payment(user_id: str, type: str, amount: float, **kwargs) -> Dict:
     """Create a payment record."""
     conn = get_db()
     c = conn.cursor()
-    
+
     payment_id = str(uuid.uuid4())
-    
+
     c.execute('''
-        INSERT INTO payments (id, user_id, pentest_id, finding_id, type, amount, 
+        INSERT INTO payments (id, user_id, pentest_id, finding_id, type, amount,
                              currency, status, description, created_at)
         VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?)
     ''', (
@@ -2345,10 +2345,10 @@ def create_payment(user_id: str, type: str, amount: float, **kwargs) -> Dict:
         type, amount, kwargs.get('currency', 'USD'), kwargs.get('description', ''),
         datetime.now().isoformat()
     ))
-    
+
     conn.commit()
     conn.close()
-    
+
     return get_payment_by_id(payment_id)
 
 
@@ -2376,19 +2376,19 @@ def get_pentester_earnings(pentester_id: str) -> Dict:
     """Get earnings summary for a pentester."""
     conn = get_db()
     c = conn.cursor()
-    
+
     # Total earnings
     c.execute('''
-        SELECT 
+        SELECT
             COALESCE(SUM(CASE WHEN status = 'completed' THEN amount ELSE 0 END), 0) as total_earned,
             COALESCE(SUM(CASE WHEN status = 'pending' THEN amount ELSE 0 END), 0) as pending,
             COALESCE(SUM(CASE WHEN status = 'completed' AND created_at >= date('now', '-30 days') THEN amount ELSE 0 END), 0) as last_30_days
         FROM payments WHERE user_id = ? AND type = 'payout'
     ''', (pentester_id,))
-    
+
     result = c.fetchone()
     conn.close()
-    
+
     return {
         'total_earned': result['total_earned'] or 0,
         'pending': result['pending'] or 0,
@@ -2404,7 +2404,7 @@ def get_pentester_stats(pentester_id: str) -> Dict:
     """Get dashboard stats for a pentester."""
     conn = get_db()
     c = conn.cursor()
-    
+
     # Active pentests
     c.execute('''
         SELECT COUNT(*) FROM pentests p
@@ -2412,10 +2412,10 @@ def get_pentester_stats(pentester_id: str) -> Dict:
         WHERE pp.pentester_id = ? AND pp.status = 'accepted' AND p.status IN ('live', 'planned')
     ''', (pentester_id,))
     active_pentests = c.fetchone()[0]
-    
+
     # Findings stats
     c.execute('''
-        SELECT 
+        SELECT
             COUNT(*) as total,
             SUM(CASE WHEN severity = 'critical' THEN 1 ELSE 0 END) as critical,
             SUM(CASE WHEN severity = 'high' THEN 1 ELSE 0 END) as high,
@@ -2425,23 +2425,23 @@ def get_pentester_stats(pentester_id: str) -> Dict:
         FROM ptaas_findings WHERE pentester_id = ?
     ''', (pentester_id,))
     findings = c.fetchone()
-    
+
     # Unread notifications
-    c.execute('SELECT COUNT(*) FROM notifications WHERE user_id = ? AND is_read = 0', 
+    c.execute('SELECT COUNT(*) FROM notifications WHERE user_id = ? AND is_read = 0',
               (pentester_id,))
     unread_notifications = c.fetchone()[0]
-    
+
     # Pending invites
     c.execute('''
-        SELECT COUNT(*) FROM pentest_pentesters 
+        SELECT COUNT(*) FROM pentest_pentesters
         WHERE pentester_id = ? AND status = 'invited'
     ''', (pentester_id,))
     pending_invites = c.fetchone()[0]
-    
+
     conn.close()
-    
+
     earnings = get_pentester_earnings(pentester_id)
-    
+
     return {
         'active_pentests': active_pentests,
         'total_findings': findings['total'] or 0,
@@ -2461,17 +2461,17 @@ def get_client_stats(client_id: str) -> Dict:
     """Get dashboard stats for a client."""
     conn = get_db()
     c = conn.cursor()
-    
+
     # Pentests by status
     c.execute('''
-        SELECT status, COUNT(*) as count FROM pentests 
+        SELECT status, COUNT(*) as count FROM pentests
         WHERE client_id = ? GROUP BY status
     ''', (client_id,))
     status_counts = {row['status']: row['count'] for row in c.fetchall()}
-    
+
     # Total findings across all pentests
     c.execute('''
-        SELECT 
+        SELECT
             COALESCE(SUM(total_findings), 0) as total,
             COALESCE(SUM(critical_count), 0) as critical,
             COALESCE(SUM(high_count), 0) as high,
@@ -2480,7 +2480,7 @@ def get_client_stats(client_id: str) -> Dict:
         FROM pentests WHERE client_id = ?
     ''', (client_id,))
     findings = c.fetchone()
-    
+
     # Credits
     c.execute('SELECT credits FROM ptaas_users WHERE id = ?', (client_id,))
     user = c.fetchone()
@@ -2488,9 +2488,9 @@ def get_client_stats(client_id: str) -> Dict:
     # Assets count
     c.execute('SELECT COUNT(*) as cnt FROM assets WHERE client_id = ?', (client_id,))
     assets_row = c.fetchone()
-    
+
     conn.close()
-    
+
     return {
         'active_pentests': status_counts.get('live', 0) + status_counts.get('planned', 0),
         'completed_pentests': status_counts.get('completed', 0),
@@ -2513,16 +2513,16 @@ def seed_demo_data():
     """Seed database with demo data for testing."""
     conn = get_db()
     c = conn.cursor()
-    
+
     # Check if already seeded
     c.execute('SELECT COUNT(*) FROM ptaas_users')
     if c.fetchone()[0] > 0:
         conn.close()
         print("[PTaaS DB] Demo data already exists")
         return
-    
+
     now = datetime.now()
-    
+
     # Create demo pentester
     pentester_id = 'demo-pentester'
     c.execute('''
@@ -2535,7 +2535,7 @@ def seed_demo_data():
         '["Web Security", "Mobile Security", "API Testing", "Cloud Security"]',
         '["OSCP", "CEH", "GWAPT"]', now.isoformat()
     ))
-    
+
     # Create demo client
     client_id = 'demo-client'
     c.execute('''
@@ -2545,7 +2545,7 @@ def seed_demo_data():
         client_id, 'client@example.com', hash_password('demo123'),
         'Demo Client', now.isoformat()
     ))
-    
+
     # Create admin
     admin_id = 'admin'
     c.execute('''
@@ -2555,9 +2555,9 @@ def seed_demo_data():
         admin_id, 'admin@redconoffence.com', hash_password('admin123'),
         'Platform Admin', now.isoformat()
     ))
-    
+
     conn.commit()
-    
+
     # Create demo pentests
     pentests = [
         {
@@ -2606,27 +2606,27 @@ def seed_demo_data():
             'progress': 100
         }
     ]
-    
+
     for pt in pentests:
         c.execute('''
             INSERT INTO pentests (id, pentest_number, title, description, client_id, company_name,
                                  type, status, start_date, end_date, progress, created_at, updated_at)
             VALUES (?, ?, ?, ?, ?, 'TechCorp Inc.', ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ''', (
-            pt['id'], f"#{pt['id'].upper()}", pt['title'], 
+            pt['id'], f"#{pt['id'].upper()}", pt['title'],
             f"Security assessment of {pt['title']}", client_id,
             pt['type'], pt['status'], pt['start_date'], pt['end_date'], pt['progress'],
             now.isoformat(), now.isoformat()
         ))
-        
+
         # Assign pentester
         c.execute('''
             INSERT INTO pentest_pentesters (id, pentest_id, pentester_id, role, status, accepted_at)
             VALUES (?, ?, ?, 'tester', 'accepted', ?)
         ''', (str(uuid.uuid4()), pt['id'], pentester_id, now.isoformat()))
-    
+
     conn.commit()
-    
+
     # Create demo findings
     findings = [
         {
@@ -2686,7 +2686,7 @@ def seed_demo_data():
             'cvss_score': 5.5
         }
     ]
-    
+
     for i, f in enumerate(findings):
         finding_id = f'F{35000 + i}'
         c.execute('''
@@ -2701,18 +2701,18 @@ def seed_demo_data():
             f"Recommended fix for {f['title']}",
             (now - timedelta(hours=i*5)).isoformat(), now.isoformat()
         ))
-    
+
     conn.commit()  # Commit findings before updating counts
     conn.close()
-    
+
     # Update finding counts (this gets its own connection)
     for pt in pentests:
         update_pentest_finding_counts(pt['id'])
-    
+
     # Reconnect for remaining operations
     conn = get_db()
     c = conn.cursor()
-    
+
     # Create demo postings
     postings = [
         {
@@ -2743,7 +2743,7 @@ def seed_demo_data():
             'tags': '["iOS", "Android", "REST API", "PCI-DSS"]'
         }
     ]
-    
+
     for i, p in enumerate(postings):
         c.execute('''
             INSERT INTO postings (id, pentest_id, title, company, type, payout, duration,
@@ -2751,21 +2751,21 @@ def seed_demo_data():
             VALUES (?, NULL, ?, ?, ?, ?, ?, ?, ?, 'open', ?, ?)
         ''', (
             f'post{i+1}', p['title'], p['company'], p['type'], p['payout'],
-            p['duration'], p['effort_hours'], p['tags'], 
+            p['duration'], p['effort_hours'], p['tags'],
             (now - timedelta(hours=i*3)).isoformat(), 1 if i == 0 else 0
         ))
-    
+
     # Create demo feedback
     c.execute('''
         INSERT INTO feedback (id, pentest_id, pentester_id, client_id, overall_rating,
                              communication_rating, quality_rating, timeliness_rating,
                              professionalism_rating, comment, strengths, improvements, created_at)
-        VALUES (?, 'pt35005', ?, ?, 5, 5, 5, 4, 5, 
+        VALUES (?, 'pt35005', ?, ?, 5, 5, 5, 4, 5,
                 'Excellent work! Found critical vulnerabilities that our internal team missed.',
                 '["Thorough testing", "Clear reports", "Professional communication"]',
                 '["Slightly delayed on final report"]', ?)
     ''', (str(uuid.uuid4()), pentester_id, client_id, (now - timedelta(days=30)).isoformat()))
-    
+
     # Create demo activity
     activities = [
         ('finding_submitted', 'Submitted: SQL Injection in Product Search', 'Critical severity finding'),
@@ -2773,7 +2773,7 @@ def seed_demo_data():
         ('finding_fixed', 'Finding Fixed: Missing CloudTrail Logging', 'Client confirmed fix'),
         ('payout_received', 'Payout Received', '$1,200 for Cloud Infrastructure Assessment'),
     ]
-    
+
     for i, (type, title, desc) in enumerate(activities):
         c.execute('''
             INSERT INTO activity (id, user_id, type, title, description, icon, created_at)
@@ -2783,16 +2783,16 @@ def seed_demo_data():
             {'finding_submitted': '🔍', 'finding_accepted': '✅', 'finding_fixed': '🔧', 'payout_received': '💰'}[type],
             (now - timedelta(hours=i*2)).isoformat()
         ))
-    
+
     # Create demo notifications
     c.execute('''
         INSERT INTO notifications (id, user_id, type, title, message, link, created_at)
         VALUES (?, ?, 'finding_triaged', 'Finding Triaged', 'Your finding "Stored XSS" has been triaged', '/ptaas/findings', ?)
     ''', (str(uuid.uuid4()), pentester_id, (now - timedelta(hours=1)).isoformat()))
-    
+
     conn.commit()
     conn.close()
-    
+
     print("[PTaaS DB] Demo data seeded successfully")
     print("[PTaaS DB] Demo accounts:")
     print("  - Pentester: pentester@redconoffence.com / demo123")
@@ -2867,7 +2867,7 @@ def get_default_checklist(asset_type: str = 'web') -> List[Dict]:
             ]},
         ],
     }
-    
+
     return checklists.get(asset_type, checklists['web'])
 
 
@@ -2875,10 +2875,10 @@ def create_coverage_items_for_pentest(pentest_id: str, asset_type: str = 'web') 
     """Create default checklist items for a pentest."""
     checklist = get_default_checklist(asset_type)
     now = datetime.now().isoformat()
-    
+
     conn = get_db()
     c = conn.cursor()
-    
+
     count = 0
     for category in checklist:
         for item in category['items']:
@@ -2888,10 +2888,10 @@ def create_coverage_items_for_pentest(pentest_id: str, asset_type: str = 'web') 
                 VALUES (?, ?, ?, ?, ?, 'pending', ?)
             ''', (item_id, pentest_id, category['category'], item['item'], item['description'], now))
             count += 1
-    
+
     conn.commit()
     conn.close()
-    
+
     return count
 
 
@@ -2899,16 +2899,16 @@ def get_coverage_for_pentest(pentest_id: str) -> List[Dict]:
     """Get coverage checklist for a pentest."""
     conn = get_db()
     c = conn.cursor()
-    
+
     c.execute('''
         SELECT * FROM coverage_checklist
         WHERE pentest_id = ?
         ORDER BY category, created_at
     ''', (pentest_id,))
-    
+
     items = [dict(row) for row in c.fetchall()]
     conn.close()
-    
+
     return items
 
 
@@ -2916,9 +2916,9 @@ def update_coverage_item(item_id: str, pentester_id: str, status: str, notes: st
     """Update a coverage checklist item."""
     conn = get_db()
     c = conn.cursor()
-    
+
     now = datetime.now().isoformat()
-    
+
     if status == 'completed':
         c.execute('''
             UPDATE coverage_checklist
@@ -2931,10 +2931,10 @@ def update_coverage_item(item_id: str, pentester_id: str, status: str, notes: st
             SET status = ?, notes = ?, completed_by = NULL, completed_at = NULL
             WHERE id = ?
         ''', (status, notes, item_id))
-    
+
     conn.commit()
     conn.close()
-    
+
     return True
 
 
@@ -2942,9 +2942,9 @@ def get_coverage_stats(pentest_id: str) -> Dict:
     """Get coverage statistics for a pentest."""
     conn = get_db()
     c = conn.cursor()
-    
+
     c.execute('''
-        SELECT 
+        SELECT
             COUNT(*) as total,
             SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) as completed,
             SUM(CASE WHEN status = 'in_progress' THEN 1 ELSE 0 END) as in_progress,
@@ -2953,10 +2953,10 @@ def get_coverage_stats(pentest_id: str) -> Dict:
         FROM coverage_checklist
         WHERE pentest_id = ?
     ''', (pentest_id,))
-    
+
     row = c.fetchone()
     conn.close()
-    
+
     if row:
         total = row['total'] or 0
         completed = row['completed'] or 0
@@ -2968,7 +2968,7 @@ def get_coverage_stats(pentest_id: str) -> Dict:
             'pending': row['pending'] or 0,
             'percentage': round((completed / total * 100) if total > 0 else 0, 1)
         }
-    
+
     return {'total': 0, 'completed': 0, 'in_progress': 0, 'not_applicable': 0, 'pending': 0, 'percentage': 0}
 
 
@@ -2980,10 +2980,10 @@ def create_asset(client_id: str, name: str, asset_type: str, **kwargs) -> str:
     """Create a new asset."""
     asset_id = str(uuid.uuid4())[:8].upper()
     now = datetime.now().isoformat()
-    
+
     conn = get_db()
     c = conn.cursor()
-    
+
     c.execute('''
         INSERT INTO assets (id, client_id, name, type, description, url, environment,
                            technology_stack, authentication_info, status, risk_level, created_at)
@@ -2999,10 +2999,10 @@ def create_asset(client_id: str, name: str, asset_type: str, **kwargs) -> str:
         kwargs.get('risk_level', 'medium'),
         now
     ))
-    
+
     conn.commit()
     conn.close()
-    
+
     return asset_id
 
 
@@ -3010,16 +3010,16 @@ def get_assets_for_client(client_id: str) -> List[Dict]:
     """Get all assets for a client."""
     conn = get_db()
     c = conn.cursor()
-    
+
     c.execute('''
         SELECT * FROM assets
         WHERE client_id = ?
         ORDER BY created_at DESC
     ''', (client_id,))
-    
+
     assets = [dict(row) for row in c.fetchall()]
     conn.close()
-    
+
     return assets
 
 
@@ -3027,11 +3027,11 @@ def get_asset_by_id(asset_id: str) -> Optional[Dict]:
     """Get a single asset by ID."""
     conn = get_db()
     c = conn.cursor()
-    
+
     c.execute('SELECT * FROM assets WHERE id = ?', (asset_id,))
     row = c.fetchone()
     conn.close()
-    
+
     return dict(row) if row else None
 
 
@@ -3039,7 +3039,7 @@ def update_asset(asset_id: str, client_id: str = None, **fields) -> bool:
     """Update an asset. Optionally verify ownership."""
     allowed = {'name', 'type', 'description', 'url', 'environment',
                'technology_stack', 'authentication_info', 'status', 'risk_level'}
-    
+
     for col in fields.keys():
         if col not in _ALLOWED_ASSET_COLS:
             raise ValueError(f"Invalid column: {col!r}")
@@ -3048,28 +3048,28 @@ def update_asset(asset_id: str, client_id: str = None, **fields) -> bool:
         if k in allowed:
             updates.append(f"{k} = ?")
             values.append(v)
-    
+
     if not updates:
         return False
-    
+
     conn = get_db()
     c = conn.cursor()
-    
+
     if client_id:
         c.execute("SELECT client_id FROM assets WHERE id = ?", (asset_id,))
         row = c.fetchone()
         if not row or row['client_id'] != client_id:
             conn.close()
             return False
-    
+
     updates.append("updated_at = ?")
     values.append(datetime.now().isoformat())
     values.append(asset_id)
-    
+
     c.execute(f"UPDATE assets SET {', '.join(updates)} WHERE id = ?", values)
     conn.commit()
     conn.close()
-    
+
     return True
 
 
@@ -3077,18 +3077,18 @@ def delete_asset(asset_id: str, client_id: str = None) -> bool:
     """Delete an asset. Optionally verify ownership."""
     conn = get_db()
     c = conn.cursor()
-    
+
     if client_id:
         c.execute("SELECT client_id FROM assets WHERE id = ?", (asset_id,))
         row = c.fetchone()
         if not row or row['client_id'] != client_id:
             conn.close()
             return False
-    
+
     c.execute("DELETE FROM assets WHERE id = ?", (asset_id,))
     conn.commit()
     conn.close()
-    
+
     return True
 
 
@@ -3125,7 +3125,7 @@ def update_finding_fields(finding_id: str, pentester_id: str = None, **fields) -
         # Evidence (stored as JSON strings)
         "attachments", "screenshots",
     }
-    
+
     for col in fields.keys():
         if col not in _ALLOWED_FINDING_COLS:
             raise ValueError(f"Invalid column: {col!r}")
@@ -3134,13 +3134,13 @@ def update_finding_fields(finding_id: str, pentester_id: str = None, **fields) -
         if k in allowed:
             updates.append(f"{k} = ?")
             values.append(v)
-    
+
     if not updates:
         return False
-    
+
     conn = get_db()
     c = conn.cursor()
-    
+
     # Verify ownership if pentester_id provided
     if pentester_id:
         c.execute("SELECT pentester_id FROM ptaas_findings WHERE id = ?", (finding_id,))
@@ -3148,25 +3148,25 @@ def update_finding_fields(finding_id: str, pentester_id: str = None, **fields) -
         if not row or row['pentester_id'] != pentester_id:
             conn.close()
             return False
-    
+
     # Always store timestamps in UTC with timezone info to avoid client-side TZ parsing bugs.
     now = datetime.now(timezone.utc).isoformat()
     updates.append("updated_at = ?")
     values.append(now)
     values.append(finding_id)
-    
+
     c.execute(f"UPDATE ptaas_findings SET {', '.join(updates)} WHERE id = ?", values)
-    
+
     c.execute("SELECT pentest_id FROM ptaas_findings WHERE id = ?", (finding_id,))
     row = c.fetchone()
     pentest_id = row['pentest_id'] if row else None
-    
+
     conn.commit()
     conn.close()
-    
+
     if pentest_id:
         update_pentest_finding_counts(pentest_id)
-    
+
     return True
 
 
@@ -3177,34 +3177,34 @@ def delete_finding(finding_id: str, pentester_id: str = None) -> bool:
     """
     conn = get_db()
     c = conn.cursor()
-    
+
     # Get finding info
     c.execute("SELECT pentester_id, pentest_id, status FROM ptaas_findings WHERE id = ?", (finding_id,))
     row = c.fetchone()
-    
+
     if not row:
         conn.close()
         return False
-    
+
     # Verify ownership if pentester_id provided
     if pentester_id and row['pentester_id'] != pentester_id:
         conn.close()
         return False
-    
+
     # Only allow deletion of new/draft findings
     if row['status'] not in ('new', 'draft'):
         conn.close()
         return False
-    
+
     pentest_id = row['pentest_id']
-    
+
     c.execute("DELETE FROM ptaas_findings WHERE id = ?", (finding_id,))
     conn.commit()
     conn.close()
-    
+
     # Update counts
     update_pentest_finding_counts(pentest_id)
-    
+
     return True
 
 

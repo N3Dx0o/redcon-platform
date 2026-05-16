@@ -20,6 +20,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from starlette.responses import Response
+from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.templating import Jinja2Templates
 import ptaas_db
 from fastapi_backend import email_service
@@ -52,7 +53,6 @@ SCAN_COST_CREDITS = int(os.getenv("SCAN_COST_CREDITS", "1") or "1")
 
 app = FastAPI(title="REDCON API (FastAPI)", version="1.1.0")
 
-from starlette.middleware.base import BaseHTTPMiddleware
 
 class SecurityHeadersMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request, call_next):
@@ -1093,21 +1093,21 @@ class ResetPasswordBody(BaseModel):
 def api_request_password_reset(request: Request, body: RequestPasswordResetBody):
     """Request a password reset link (public endpoint)"""
     email = (body.email or "").lower().strip()
-    
+
     if not email or "@" not in email:
         raise HTTPException(status_code=400, detail="Valid email is required")
-    
+
     # Rate limiting to prevent abuse (3 attempts per 15 minutes per email)
     if not ptaas_db.check_rate_limit(email, "password_reset_request", max_attempts=3, window_minutes=15):
         raise HTTPException(status_code=429, detail="Too many reset requests. Please try again in 15 minutes.")
-    
+
     # Get client IP for logging (security audit trail)
     client_ip = request.client.host if request.client else "unknown"
     user_agent = request.headers.get("user-agent", "")[:200]
-    
+
     # Create reset token (returns None if email doesn't exist)
     result = ptaas_db.create_password_reset_token(email, ip_address=client_ip, user_agent=user_agent)
-    
+
     # SECURITY: Always return success to prevent user enumeration
     # Don't reveal if email exists or not
     if result:
@@ -1122,10 +1122,10 @@ def api_request_password_reset(request: Request, body: RequestPasswordResetBody)
             )
         except Exception as e:
             print(f"[EMAIL] Failed to send password reset email: {e}")
-    
+
     # Always return success (security best practice)
     return {
-        "success": True, 
+        "success": True,
         "message": "If that email exists, we've sent a password reset link. Check your inbox."
     }
 
@@ -1135,11 +1135,11 @@ def api_validate_reset_token(token: str):
     """Validate a password reset token"""
     if not token:
         raise HTTPException(status_code=400, detail="Token is required")
-    
+
     token_data = ptaas_db.validate_password_reset_token(token)
     if not token_data:
         raise HTTPException(status_code=400, detail="Invalid or expired reset link")
-    
+
     return {
         "success": True,
         "email": token_data.get("email"),
@@ -1152,25 +1152,25 @@ def api_reset_password(request: Request, body: ResetPasswordBody):
     """Complete password reset"""
     token = (body.token or "").strip()
     password = (body.password or "").strip()
-    
+
     if not token or not password:
         raise HTTPException(status_code=400, detail="Token and password are required")
-    
+
     if len(password) < 8:
         raise HTTPException(status_code=400, detail="Password must be at least 8 characters")
-    
+
     # Validate and reset password
     success, user_email = ptaas_db.complete_password_reset(token, password)
     if not success:
         raise HTTPException(status_code=400, detail="Invalid or expired reset link")
-    
+
     # Send confirmation email
     if user_email:
         try:
             email_service.send_password_reset_confirmation(user_email)
         except Exception as e:
             print(f"[EMAIL] Failed to send password reset confirmation: {e}")
-    
+
     return {"success": True, "message": "Password reset successfully. You can now sign in."}
 
 
@@ -1179,11 +1179,11 @@ def api_validate_setup_token(token: str):
     """Validate a setup token and return user info"""
     if not token:
         raise HTTPException(status_code=400, detail="Token is required")
-    
+
     token_data = ptaas_db.validate_setup_token(token)
     if not token_data:
         raise HTTPException(status_code=400, detail="Invalid or expired setup link")
-    
+
     return {
         "success": True,
         "email": token_data.get("email"),
@@ -1197,18 +1197,18 @@ def api_setup_account(body: SetupAccountBody):
     """Complete account setup with new password"""
     token = (body.token or "").strip()
     password = (body.password or "").strip()
-    
+
     if not token or not password:
         raise HTTPException(status_code=400, detail="Token and password are required")
-    
+
     if len(password) < 8:
         raise HTTPException(status_code=400, detail="Password must be at least 8 characters")
-    
+
     # Validate and complete setup
     success = ptaas_db.complete_setup_token(token, password)
     if not success:
         raise HTTPException(status_code=400, detail="Invalid or expired setup link")
-    
+
     return {"success": True, "message": "Account setup complete! You can now sign in."}
 
 
@@ -1537,7 +1537,7 @@ def api_client_insights(request: Request):
 
     c.execute(
         """
-        SELECT COUNT(*) 
+        SELECT COUNT(*)
         FROM ptaas_findings f
         JOIN pentests p ON p.id = f.pentest_id
         WHERE p.client_id = ?
@@ -2325,7 +2325,7 @@ def api_client_request_pentest(request: Request, body: ClientRequestPentestBody)
         )
 
     ptaas_db.update_pentest(pentest["id"], status="pending", attachments=__import__("json").dumps(canonical))
-    
+
     # Send email notification to admins
     try:
         conn = ptaas_db.get_db()
@@ -2333,7 +2333,7 @@ def api_client_request_pentest(request: Request, body: ClientRequestPentestBody)
         c.execute("SELECT email FROM ptaas_users WHERE role = 'admin' AND is_active = 1")
         admin_emails = [r["email"] for r in c.fetchall() if r["email"]]
         conn.close()
-        
+
         if admin_emails:
             email_service.notify_pentest_requested(
                 pentest_id=pentest.get("public_id") or pentest["id"],
@@ -2344,7 +2344,7 @@ def api_client_request_pentest(request: Request, body: ClientRequestPentestBody)
             )
     except Exception as e:
         print(f"[EMAIL] Failed to notify admins of new pentest: {e}")
-    
+
     return {"success": True, "pentest": pentest, "message": "Pentest request submitted successfully"}
 
 
@@ -2373,7 +2373,7 @@ def api_client_respond_finding(finding_id: str, request: Request, body: ClientFi
     ok = ptaas_db.update_finding_status(finding_id, body.status, user_id=u["id"], client_response=(body.comment or ""))
     if not ok:
         raise HTTPException(status_code=400, detail="Failed to update finding")
-    
+
     # Send email to pentesters when client responds
     try:
         conn = ptaas_db.get_db()
@@ -2385,7 +2385,7 @@ def api_client_respond_finding(finding_id: str, request: Request, body: ClientFi
         """, (pentest["id"],))
         pentester_emails = [r["email"] for r in c.fetchall() if r["email"]]
         conn.close()
-        
+
         if pentester_emails:
             email_service.notify_client_responded(
                 pentester_emails=pentester_emails,
@@ -2395,7 +2395,7 @@ def api_client_respond_finding(finding_id: str, request: Request, body: ClientFi
             )
     except Exception as e:
         print(f"[EMAIL] Failed to send client response email: {e}")
-    
+
     return {"success": True}
 
 
@@ -2408,16 +2408,16 @@ def api_client_respond_finding(finding_id: str, request: Request, body: ClientFi
 def api_get_pentest_report(pentest_id: str, request: Request):
     """Get report for a finished pentest"""
     u = require_role(request, "client")
-    
+
     pentest = ptaas_db.get_pentest_by_id(pentest_id)
     if not pentest:
         raise HTTPException(status_code=404, detail="Pentest not found")
     if pentest.get("client_id") != u["id"]:
         raise HTTPException(status_code=403, detail="Access denied")
-    
+
     # Check if report exists
     report = ptaas_db.get_latest_report_for_pentest(pentest_id, type="full")
-    
+
     return {
         "success": True,
         "has_report": bool(report),
@@ -2431,33 +2431,33 @@ def api_get_pentest_report(pentest_id: str, request: Request):
 def api_generate_pentest_report(pentest_id: str, request: Request):
     """Generate PDF report for finished pentest"""
     u = require_role(request, "client")
-    
+
     pentest = ptaas_db.get_pentest_by_id(pentest_id)
     if not pentest:
         raise HTTPException(status_code=404, detail="Pentest not found")
     if pentest.get("client_id") != u["id"]:
         raise HTTPException(status_code=403, detail="Access denied")
-    
+
     # Only allow report generation for finished pentests
     status = str(pentest.get("status") or "").lower()
     if status not in ("finished", "completed", "final"):
         raise HTTPException(status_code=400, detail="Reports can only be generated for finished pentests")
-    
+
     # Gather report data
     try:
         targets = json.loads(pentest.get("targets") or "[]")
         if not isinstance(targets, list):
             targets = []
-    except:
+    except Exception:
         targets = []
     targets = [str(t) for t in targets if str(t).strip()] or ["Not specified"]
-    
+
     # Get findings
     conn = ptaas_db.get_db()
     c = conn.cursor()
     c.execute("SELECT * FROM ptaas_findings WHERE pentest_id = ? ORDER BY created_at ASC", (pentest_id,))
     finding_rows = [dict(r) for r in c.fetchall()]
-    
+
     # Get pentesters
     c.execute("""
         SELECT u.name, u.email, pp.role
@@ -2472,18 +2472,18 @@ def api_generate_pentest_report(pentest_id: str, request: Request):
         role = (r["role"] or "tester").lower()
         pentesters.append({"name": name, "role_label": "Lead Pentester" if role == "lead" else "Pentester"})
     conn.close()
-    
+
     # Process findings
     findings = []
     stats = {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0}
-    
+
     for f in finding_rows:
         severity = str(f.get("severity") or "info").lower()
         if severity in stats:
             stats[severity] += 1
         else:
             stats["info"] += 1
-        
+
         # Gather evidence images from screenshots/attachments
         evidence_images = []
         for col in ("screenshots", "attachments"):
@@ -2504,11 +2504,11 @@ def api_generate_pentest_report(pentest_id: str, request: Request):
                         evidence_images.append(_data_uri_for_file(local, mime))
                     if len(evidence_images) >= 4:
                         break
-            except:
+            except Exception:
                 pass
             if len(evidence_images) >= 4:
                 break
-        
+
         findings.append({
             "public_id": f.get("public_id") or f.get("id"),
             "title": f.get("title") or "Untitled Finding",
@@ -2524,7 +2524,7 @@ def api_generate_pentest_report(pentest_id: str, request: Request):
             "status": f.get("status") or "new",
             "evidence_images": evidence_images,
         })
-    
+
     # Calculate risk level
     if stats["critical"] > 0:
         risk_level = "critical"
@@ -2541,10 +2541,10 @@ def api_generate_pentest_report(pentest_id: str, request: Request):
     else:
         risk_level = "low"
         risk_summary = "No significant security issues identified during this assessment."
-    
+
     # Build report context
     title = pentest.get("title") or "Security Assessment"
-    
+
     # Determine testing approach based on credentials
     cred_type = str(pentest.get("credential_type") or "").lower()
     if cred_type in ("admin", "privileged", "full"):
@@ -2556,7 +2556,7 @@ def api_generate_pentest_report(pentest_id: str, request: Request):
     else:
         testing_approach = "Black Box"
         access_level = "Unauthenticated external perspective"
-    
+
     report_context = {
         "report": {
             "title": f"{title} - Security Report",
@@ -2580,30 +2580,30 @@ def api_generate_pentest_report(pentest_id: str, request: Request):
         "findings": findings,
         "pentesters": pentesters,
     }
-    
+
     # Render HTML
     html = templates.get_template("pentest_report.html").render(**report_context)
-    
+
     # Generate PDF
     try:
         from weasyprint import HTML as WPHTML
     except Exception:
         raise HTTPException(status_code=500, detail="PDF generation not available")
-    
+
     # Create unique filename (strip # from public_id for URL-safe filename)
     slug_title = _slug(title)
     timestamp = datetime.utcnow().strftime("%Y%m%d%H%M%S")
     pub_id = (pentest.get("public_id") or "").replace("#", "").replace("PT_", "").replace("-", "").lower() or "report"
     filename = f"report_{slug_title}_pt{pub_id}_{timestamp}.pdf"
-    
+
     out_dir = "/var/www/redcon/uploads/reports"
     os.makedirs(out_dir, exist_ok=True)
     out_path = os.path.join(out_dir, filename)
-    
+
     WPHTML(string=html, base_url="/var/www/redcon").write_pdf(out_path)
     file_size = os.path.getsize(out_path) if os.path.exists(out_path) else 0
     file_url = f"/uploads/reports/{filename}"
-    
+
     # Save report record
     report = ptaas_db.create_report(
         pentest_id=pentest_id,
@@ -2612,12 +2612,12 @@ def api_generate_pentest_report(pentest_id: str, request: Request):
         file_url=file_url,
         generated_by=u["id"]
     )
-    
+
     try:
         ptaas_db.update_report_file(report["id"], file_url, int(file_size))
-    except:
+    except Exception:
         pass
-    
+
     # Send email to client with report link
     try:
         if u.get("email"):
@@ -2629,7 +2629,7 @@ def api_generate_pentest_report(pentest_id: str, request: Request):
             )
     except Exception as e:
         print(f"[EMAIL] Failed to send report generated email: {e}")
-    
+
     return {
         "success": True,
         "report_id": report.get("id"),
@@ -2660,19 +2660,19 @@ def protected_report_download(filename: str, request: Request):
     """Protected report download"""
     def _nf():
         return JSONResponse({"error": "Not found"}, status_code=404)
-    
+
     u = _get_user_from_session(request)
     if not u:
         return _nf()
-    
+
     filename = filename.strip().replace("\\", "/")
     if "/" in filename or ".." in filename or not filename.endswith(".pdf"):
         return _nf()
-    
+
     resolved = _find_report_by_filename(filename)
     if not resolved:
         return _nf()
-    
+
     # Check access
     role = (u.get("role") or "").lower()
     if role == "admin":
@@ -2682,7 +2682,7 @@ def protected_report_download(filename: str, request: Request):
             return _nf()
     else:
         return _nf()
-    
+
     # Serve via X-Accel-Redirect
     internal_path = f"/_protected_uploads/reports/{filename}"
     resp = Response(status_code=200)
@@ -2805,7 +2805,7 @@ def api_create_finding_comment(finding_id: str, request: Request, body: FindingC
         for rid in recipients:
             if rid == u["id"]:
                 continue
-            _notify_user(rid, "comment_added", title, msg, link or "")
+            _notify_once(rid, "comment_added", title, msg, link or "")
             try:
                 ptaas_db.create_activity(
                     rid,
@@ -2818,18 +2818,18 @@ def api_create_finding_comment(finding_id: str, request: Request, body: FindingC
                 )
             except Exception:
                 pass
-        
+
         # Send emails to relevant users (exclude commenter, only external comments)
         if not is_internal:
             try:
                 emails_to_notify = []
-                
+
                 # Get client email
                 if client_id:
                     client = ptaas_db.get_user_by_id(client_id)
                     if client and client.get("email") and client["id"] != u["id"]:
                         emails_to_notify.append(client["email"])
-                
+
                 # Get pentester emails
                 conn2 = ptaas_db.get_db()
                 c2 = conn2.cursor()
@@ -2842,15 +2842,15 @@ def api_create_finding_comment(finding_id: str, request: Request, body: FindingC
                     if r["email"]:
                         emails_to_notify.append(r["email"])
                 conn2.close()
-                
+
                 # Get finding watchers
                 watchers = ptaas_db.get_finding_watchers(finding_id)
                 for w in watchers:
                     if w.get("id") != u["id"] and w.get("email"):
                         emails_to_notify.append(w["email"])
-                
+
                 emails_to_notify = list(set(emails_to_notify))  # Remove duplicates
-                
+
                 if emails_to_notify:
                     email_service.notify_new_comment(
                         emails=emails_to_notify,
@@ -2954,13 +2954,13 @@ def api_ready_for_retest(finding_id: str, request: Request):
 
         # client
         if client_id:
-            _notify_user(client_id, "finding_ready_retest", title, msg, link)
+            _notify_once(client_id, "finding_ready_retest", title, msg, link)
         # admin + pentesters
         for rid in set(admin_ids + pentester_ids):
             if rid == u["id"]:
                 continue
-            _notify_user(rid, "finding_ready_retest", title, msg, f"/ptaas/pentest/{pentest_id}#findings")
-        
+            _notify_once(rid, "finding_ready_retest", title, msg, f"/ptaas/pentest/{pentest_id}#findings")
+
         # Send emails to pentesters
         try:
             conn2 = ptaas_db.get_db()
@@ -2972,7 +2972,7 @@ def api_ready_for_retest(finding_id: str, request: Request):
             """, (pentest_id,))
             pentester_emails = [r["email"] for r in c2.fetchall() if r["email"]]
             conn2.close()
-            
+
             if pentester_emails:
                 email_service.notify_ready_retest(
                     pentester_emails=pentester_emails,
@@ -3069,29 +3069,29 @@ def api_admin_users(request: Request, limit: int = 200):
 def api_admin_create_user(request: Request, body: AdminCreateUserBody):
     require_role(request, "admin")
     email = (body.email or "").lower().strip()
-    
+
     if not email or not body.name or not body.role:
         raise HTTPException(status_code=400, detail="Missing required fields: email, name, role")
-    
+
     if body.role not in ("admin", "client", "pentester"):
         raise HTTPException(status_code=400, detail="Invalid role")
-    
+
     if ptaas_db.get_user_by_email(email):
         raise HTTPException(status_code=400, detail="Email already registered")
-    
+
     # Debug: log what we received
     print(f"[CREATE USER] email={email}, name={body.name}, role={body.role}, password_provided={bool(body.password)}, password_value={repr(body.password)}")
-    
+
     # Two modes: with password (old way) or without password (secure setup link)
     if body.password and body.password.strip():
         # Old way: create with password
         if len(body.password) < 8:
             raise HTTPException(status_code=400, detail="Password must be at least 8 characters")
-        
+
         user = ptaas_db.create_user(email=email, password=body.password, name=body.name, role=body.role, company=body.company or "")
         if not user:
             raise HTTPException(status_code=500, detail="Failed to create user")
-        
+
         # Send welcome email with password (less secure)
         try:
             email_service.notify_welcome_user(
@@ -3107,12 +3107,12 @@ def api_admin_create_user(request: Request, body: AdminCreateUserBody):
         user = ptaas_db.create_user_without_password(email=email, name=body.name, role=body.role, company=body.company or "")
         if not user:
             raise HTTPException(status_code=500, detail="Failed to create user")
-        
+
         # Generate setup token
         token = ptaas_db.create_setup_token(user["id"])
         if not token:
             raise HTTPException(status_code=500, detail="Failed to generate setup token")
-        
+
         # Send welcome email with setup link
         try:
             setup_url = f"https://platform.redconoffence.com/app/setup-account?token={token}"
@@ -3124,7 +3124,7 @@ def api_admin_create_user(request: Request, body: AdminCreateUserBody):
             )
         except Exception as e:
             print(f"[EMAIL] Failed to send welcome email: {e}")
-    
+
     return {"success": True, "user": {"id": user["id"], "email": user["email"], "name": user["name"], "role": user["role"], "company": user.get("company", "")}}
 
 
@@ -3375,7 +3375,7 @@ def api_admin_approve_pentest(pentest_id: str, request: Request):
                 f'Your pentest request "{pentest.get("title","")}" has been approved.',
                 f"/client/pentest/{pentest_id}",
             )
-            
+
             # Send email to client
             try:
                 client = ptaas_db.get_user_by_id(pentest["client_id"])
@@ -3389,7 +3389,7 @@ def api_admin_approve_pentest(pentest_id: str, request: Request):
                     )
             except Exception as e:
                 print(f"[EMAIL] Failed to send approval email: {e}")
-    
+
     return {"success": True, "message": "Pentest approved successfully"}
 
 
@@ -3397,9 +3397,9 @@ def api_admin_approve_pentest(pentest_id: str, request: Request):
 def api_admin_reject_pentest(pentest_id: str, request: Request):
     require_role(request, "admin")
     pentest = ptaas_db.get_pentest_by_id(pentest_id)
-    
+
     ptaas_db.update_pentest(pentest_id, status="cancelled")
-    
+
     # Send email to client
     if pentest and pentest.get("client_id"):
         try:
@@ -3413,7 +3413,7 @@ def api_admin_reject_pentest(pentest_id: str, request: Request):
                 )
         except Exception as e:
             print(f"[EMAIL] Failed to send rejection email: {e}")
-    
+
     return {"success": True, "message": "Pentest rejected"}
 
 
@@ -3443,17 +3443,17 @@ def api_admin_start_pentest(pentest_id: str, request: Request):
                 f'Engagement "{pentest.get("title","")}" is now active.',
                 f"/ptaas/pentest/{pentest_id}",
             )
-        
+
         # Send emails to client and pentesters
         try:
             emails_to_notify = []
-            
+
             # Get client email
             if pentest.get("client_id"):
                 client = ptaas_db.get_user_by_id(pentest["client_id"])
                 if client and client.get("email"):
                     emails_to_notify.append(client["email"])
-            
+
             # Get pentester emails
             conn = ptaas_db.get_db()
             c = conn.cursor()
@@ -3466,7 +3466,7 @@ def api_admin_start_pentest(pentest_id: str, request: Request):
                 if r["email"]:
                     emails_to_notify.append(r["email"])
             conn.close()
-            
+
             if emails_to_notify:
                 email_service.notify_pentest_started(
                     emails=emails_to_notify,
@@ -3476,7 +3476,7 @@ def api_admin_start_pentest(pentest_id: str, request: Request):
                 )
         except Exception as e:
             print(f"[EMAIL] Failed to send pentest started emails: {e}")
-    
+
     return {"success": True, "message": "Pentest started successfully"}
 
 
@@ -3577,7 +3577,7 @@ def api_admin_finish_pentest(pentest_id: str, request: Request, body: AdminFinis
                 )
     except Exception:
         pass
-    
+
     # Send email to client when pentest finishes
     try:
         if pentest.get("client_id"):
@@ -3589,7 +3589,7 @@ def api_admin_finish_pentest(pentest_id: str, request: Request, body: AdminFinis
                 c.execute("SELECT COUNT(*) as cnt FROM ptaas_findings WHERE pentest_id = ?", (pentest_id,))
                 findings_count = c.fetchone()["cnt"]
                 conn.close()
-                
+
                 email_service.notify_pentest_finished(
                     client_email=client["email"],
                     pentest_id=pentest.get("public_id") or pentest_id,
@@ -3664,7 +3664,7 @@ def api_admin_assign_pentester(pentest_id: str, request: Request, body: AdminAss
             f'A pentester has been assigned to "{pentest.get("title","")}".',
             f"/client/pentest/{pentest_id}",
         )
-    
+
     # Send email to assigned pentester
     try:
         pentester = ptaas_db.get_user_by_id(body.pentester_id)
@@ -4215,7 +4215,7 @@ def api_ptaas_create_finding(request: Request, body: dict):
                 "finding_submitted",
                 "Finding Submitted",
                 msg,
-                f"/admin/pentests",
+                "/admin/pentests",
                 window_seconds=30,
             )
         for pid in _get_accepted_pentester_ids_for_pentest(pentest_id):
@@ -4228,7 +4228,7 @@ def api_ptaas_create_finding(request: Request, body: dict):
                     f"/ptaas/pentest/{pentest_id}",
                     window_seconds=30,
                 )
-        
+
         # Send email to client about new finding
         if pentest and pentest.get("client_id"):
             try:
@@ -4353,29 +4353,29 @@ def api_pentester_update_finding(finding_id: str, request: Request, body: Pentes
                 "finding_updated",
                 "Finding Updated",
                 msg,
-                f"/admin/pentests",
+                "/admin/pentests",
                 window_seconds=60,
             )
-        
+
         # Send email if status changed
         if status and status != old_status:
             try:
                 emails_to_notify = []
-                
+
                 # Get client email
                 if pentest and pentest.get("client_id"):
                     client = ptaas_db.get_user_by_id(pentest["client_id"])
                     if client and client.get("email"):
                         emails_to_notify.append(client["email"])
-                
+
                 # Get watchers
                 watchers = ptaas_db.get_finding_watchers(finding_id)
                 for w in watchers:
                     if w.get("email") and w.get("id") != u["id"]:
                         emails_to_notify.append(w["email"])
-                
+
                 emails_to_notify = list(set(emails_to_notify))
-                
+
                 if emails_to_notify:
                     email_service.notify_finding_status_changed(
                         emails=emails_to_notify,
@@ -4421,7 +4421,7 @@ def api_pentester_delete_finding(finding_id: str, request: Request):
                     "finding_deleted",
                     "Finding Deleted",
                     msg,
-                    f"/admin/pentests",
+                    "/admin/pentests",
                     window_seconds=60,
                 )
     except Exception:

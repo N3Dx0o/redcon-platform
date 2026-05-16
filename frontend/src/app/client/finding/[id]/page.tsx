@@ -198,7 +198,7 @@ export default function ClientFindingDetailPage() {
               >
                 <option value="accepted">Accept</option>
                 <option value="need_more_info">Need more info</option>
-                <option value="wont_fix">Won't fix</option>
+                <option value="wont_fix">Won&apos;t fix</option>
                 <option value="fixed">Fixed</option>
                 <option value="verified">Verified</option>
               </select>

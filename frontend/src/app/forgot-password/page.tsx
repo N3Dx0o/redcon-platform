@@ -49,10 +49,10 @@ export default function ForgotPasswordPage() {
           </div>
           <h1 className="text-2xl font-bold text-white mb-2">Check Your Email</h1>
           <p className="text-gray-400 mb-6">
-            If an account exists for <strong className="text-white">{email}</strong>, we've sent a password reset link.
+            If an account exists for <strong className="text-white">{email}</strong>, we&apos;ve sent a password reset link.
           </p>
           <p className="text-sm text-gray-500 mb-6">
-            The link will expire in 1 hour. Didn't receive it? Check your spam folder or try again.
+            The link will expire in 1 hour. Didn&apos;t receive it? Check your spam folder or try again.
           </p>
           <Link
             href="/app/portal"
@@ -74,7 +74,7 @@ export default function ForgotPasswordPage() {
             <span className="text-2xl font-bold text-white">R</span>
           </div>
           <h1 className="text-3xl font-bold text-white mb-2">Forgot Password?</h1>
-          <p className="text-gray-400">No worries, we'll send you reset instructions.</p>
+          <p className="text-gray-400">No worries, we&apos;ll send you reset instructions.</p>
         </div>
 
         {/* Form */}
