@@ -1,4 +1,64 @@
-name: CI
+name: Deploy to production
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "Git ref to deploy (default: main)"
+        required: false
+        default: "main"
+
+concurrency:
+  group: deploy-prod
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy to platform.redconoffence.com
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: SSH + deploy
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          command_timeout: 15m
+          script: |
+            set -euo pipefail
+            REF="${{ inputs.ref }}"
+            cd /var/www/redcon
+
+            echo "→ fetching $REF"
+            git fetch --prune origin
+            git checkout "$REF"
+            git reset --hard "origin/$REF"
+
+            echo "→ installing backend deps"
+            venv/bin/pip install --quiet --upgrade pip
+            venv/bin/pip install --quiet -r requirements.txt
+
+            echo "→ building frontend"
+            cd frontend
+            npm ci --silent
+            npm run build
+            cd ..
+
+            echo "→ fixing ownership"
+            chown -R www-data:www-data .
+
+            echo "→ restarting services"
+            systemctl restart redcon-api
+            systemctl restart redcon-next
+
+            echo "→ health check"
+            sleep 4
+            curl -fsS http://127.0.0.1:8001/ >/dev/null && echo "✓ API ok"
+            curl -fsS http://127.0.0.1:3001/app/portal >/dev/null && echo "✓ Next ok"
+
+            echo "✓ deployed $(git rev-parse --short HEAD)"name: CI
 
 on:
   push:
