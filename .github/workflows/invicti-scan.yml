@@ -1,0 +1,32 @@
+name: Invicti Scan
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch: {}     # optional: lets you also run it manually from the Actions tab
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    container:
+      image: invicti/scan-cli:latest
+    env:
+      INVICTI_API_BASE_URL: "https://platform-eu.invicti.com"
+      INVICTI_API_TOKEN: ${{ secrets.INVICTI_API_TOKEN }}
+      INVICTI_TARGET_ID: "c918faec-8810-4cd2-b4bd-f845d3432c8d"
+      INVICTI_SCAN_AGENT: "CloudAgent"
+      INVICTI_SCAN_PROFILE: "Full Scan"
+      INVICTI_MINIMUM_SEVERITY: "Critical,High,Medium"
+      INVICTI_EXPORT_LIST: "HTML:report.html,JSON:findings.json"
+    steps:
+      - name: Run Invicti Scan CLI
+        run: /home/invicti/scancli/ScanCLI
+
+      - name: Upload scan artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: invicti-scan-results
+          path: /home/invicti/publicdata/
+          if-no-files-found: ignore
+          retention-days: 7
